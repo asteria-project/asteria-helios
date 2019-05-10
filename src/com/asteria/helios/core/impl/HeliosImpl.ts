@@ -1,0 +1,50 @@
+
+import { AbstractAsteriaObject } from 'asteria-gaia';
+import { Helios } from '../Helios';
+import { HeliosConfig } from '../../config/HeliosConfig';
+import { HeliosLogger } from '../../util/logging/HeliosLogger';
+import { HeliosContext } from '../HeliosContext';
+import { HeliosContextImpl } from "./HeliosContextImpl";
+
+/**
+ * The default implementation of the <code>Helios</code> interface.
+ */
+export class HeliosImpl extends AbstractAsteriaObject implements Helios {
+
+    /**
+     * The execution context for this server instance.
+     */
+    private readonly CONTEXT: HeliosContext;
+
+    /**
+     * Create a new <code>HeliosImpl</code> instance.
+     * 
+     * @param {HeliosConfig} config the configuration for this server instance.
+     */
+    constructor(config: HeliosConfig) {
+        super('com.asteria.helios.core.impl::HeliosImpl');
+        this.CONTEXT = new HeliosContextImpl(config);
+        HeliosLogger.getLogger().info(`server created with ID: ${this.CONTEXT.getId()}`);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public getContext(): HeliosContext {
+        return this.CONTEXT;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public start(): void {
+        HeliosLogger.getLogger().info('server started');
+        const port: number = this.CONTEXT.getPort();
+        try {
+            this.CONTEXT.getServer().listen(port);
+            HeliosLogger.getLogger().info(`listening conctions on port ${port}`);
+        } catch (e) {
+            HeliosLogger.getLogger().fatal(`server start failed:\n${e}`);
+        }
+    }
+}
