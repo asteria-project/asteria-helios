@@ -5,6 +5,7 @@ import { HeliosConfig } from '../../config/HeliosConfig';
 import { HeliosLogger } from '../../util/logging/HeliosLogger';
 import { HeliosContext } from '../HeliosContext';
 import { HeliosContextImpl } from "./HeliosContextImpl";
+import { SplashScreen } from '../../util/spashscreen/SpashScreen';
 
 /**
  * The default implementation of the <code>Helios</code> interface.
@@ -23,6 +24,7 @@ export class HeliosImpl extends AbstractAsteriaObject implements Helios {
      */
     constructor(config: HeliosConfig) {
         super('com.asteria.helios.core.impl::HeliosImpl');
+        SplashScreen.create();
         this.CONTEXT = new HeliosContextImpl(config);
         HeliosLogger.getLogger().info(`server created with ID: ${this.CONTEXT.getId()}`);
     }
