@@ -54,3 +54,6 @@ src/**/*.js
 
 # Ignore JavaScript files in test folder
 test/**/*.js
+
+# Ignore data files in default workspace
+workspace/**/*.csv

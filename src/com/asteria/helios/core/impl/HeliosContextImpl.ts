@@ -1,9 +1,13 @@
 import express from 'express';
+import helmet from 'helmet';
+import * as bodyParser from 'body-parser';
 import * as path from 'path';
 import { Uuid } from "asteria-ouranos";
 import { AbstractAsteriaObject } from 'asteria-gaia';
 import { HeliosConfig } from '../../config/HeliosConfig';
 import { HeliosContext } from '../HeliosContext';
+import { HeliosRouterImpl } from '../../route/impl/HeliosRouterImpl';
+import { HeliosRouter } from '../../route/HeliosRouter';
 
 /**
  * The default implementation of the <code>HeliosContext</code> interface.
@@ -41,6 +45,7 @@ export class HeliosContextImpl extends AbstractAsteriaObject implements HeliosCo
         this.SERVER = express();
         this.PORT = config.port;
         this.WORKSPACE = path.join(__dirname, config.workspace);
+        this.initServer(config);
     }
 
     /**
@@ -69,5 +74,18 @@ export class HeliosContextImpl extends AbstractAsteriaObject implements HeliosCo
      */
     public getWorkspace(): string {
         return this.WORKSPACE;
+    }
+
+    /**
+     * Initialize this server.
+     * 
+     * @param {HeliosConfig} config the configuration for this server instance.
+     */
+    private initServer(config: HeliosConfig): void {
+        const router: HeliosRouter = new HeliosRouterImpl();
+        const path: string = config.path ? config.path : '/asteria';
+        this.SERVER.use(bodyParser.json());
+        this.SERVER.use(helmet());
+        this.SERVER.use(path, router.getRouter());
     }
 }

@@ -15,6 +15,23 @@ Asteria Helios needs the following system parameters in order to work correctly:
 
 ## Installation
 
+Set up the Asteria Helios module with:
+
+```bash
+$ npm install asteria-helios --save
+```
+
+## Usage
+
+To create a new server instance, you typically use the Helios factory:
+
+```javascript
+import { HeliosFactory } from 'asteria-helios';
+
+HeliosFactory.create()
+             .start();
+```
+
 ## Running Tests
 
 To execute all unit tests, use:

@@ -13,4 +13,9 @@ export interface HeliosConfig {
      * The path to the workspace, from the root of the server environment.
      */
     workspace: string;
+
+    /**
+     * The root path to the Helios HTTP API.
+     */
+    path?: string;
 }

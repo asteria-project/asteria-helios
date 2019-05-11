@@ -42,7 +42,7 @@ export class HeliosImpl extends AbstractAsteriaObject implements Helios {
         const port: number = this.CONTEXT.getPort();
         try {
             this.CONTEXT.getServer().listen(port);
-            HeliosLogger.getLogger().info(`listening conctions on port ${port}`);
+            HeliosLogger.getLogger().info(`listening conections on port ${port}`);
         } catch (e) {
             HeliosLogger.getLogger().fatal(`server start failed:\n${e}`);
         }
