@@ -4,6 +4,7 @@ import { HeliosLogger } from '../../util/logging/HeliosLogger';
 import { HeliosRoute } from '../HeliosRoute';
 import { Hyperion, HyperionConfig } from 'asteria-hyperion';
 import { ErrorUtil } from 'asteria-gaia';
+import { HeliosContext } from '../../core/HeliosContext';
 
 /**
  * The default implementation of the <code>HeliosRouter</code> interface.
@@ -17,9 +18,11 @@ export class HeliosRouterImpl implements HeliosRouter {
 
     /**
      * Create a new <code>HeliosRouterImpl</code> instance.
+     * 
+     * @param {HeliosContext} context the context associated with this router.
      */
-    constructor() {
-        this.initRoutes();
+    constructor(context: HeliosContext) {
+        this.initRoutes(context);
     }
 
     /**
@@ -31,10 +34,12 @@ export class HeliosRouterImpl implements HeliosRouter {
 
     /**
      * Initialize the routes for this router.
+     * 
+     * @param {HeliosContext} context the context associated with this router.
      */
-    private initRoutes(): void {
-        this.ruokGet();
-        this.processPost();
+    private initRoutes(context: HeliosContext): void {
+        this.ruokGet(context);
+        this.processPost(context);
     }
 
     /**
@@ -47,14 +52,14 @@ export class HeliosRouterImpl implements HeliosRouter {
         HeliosLogger.getLogger().info(`${req.hostname} ${route}`);
     }
 
-    private ruokGet(): void {
+    private ruokGet(context: HeliosContext): void {
         this.ROUTER.get(HeliosRoute.RUOK, (req: express.Request, res: express.Response) => {
             this.logRoute(req, 'GET /ruok');
             res.send('I\'m still alive!');
         });
     }
 
-    private processPost(): void {
+    private processPost(context: HeliosContext): void {
         this.ROUTER.post(HeliosRoute.PROCESS, (req: express.Request, res: express.Response) => {
             const config: HyperionConfig = req.body;
             this.logRoute(req, 'POST /process');

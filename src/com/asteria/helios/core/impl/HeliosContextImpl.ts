@@ -8,6 +8,7 @@ import { HeliosConfig } from '../../config/HeliosConfig';
 import { HeliosContext } from '../HeliosContext';
 import { HeliosRouterImpl } from '../../route/impl/HeliosRouterImpl';
 import { HeliosRouter } from '../../route/HeliosRouter';
+import { ProcessorRegistry } from '../../spi/processor/ProcessorRegistry';
 
 /**
  * The default implementation of the <code>HeliosContext</code> interface.
@@ -77,12 +78,19 @@ export class HeliosContextImpl extends AbstractAsteriaObject implements HeliosCo
     }
 
     /**
+     * @inheritdoc
+     */
+    public getProcessRegistry(): ProcessorRegistry {
+        return null;
+    }
+
+    /**
      * Initialize this server.
      * 
      * @param {HeliosConfig} config the configuration for this server instance.
      */
     private initServer(config: HeliosConfig): void {
-        const router: HeliosRouter = new HeliosRouterImpl();
+        const router: HeliosRouter = new HeliosRouterImpl(this);
         const path: string = config.path ? config.path : '/asteria';
         this.SERVER.use(bodyParser.json());
         this.SERVER.use(helmet());
