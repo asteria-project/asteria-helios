@@ -14,7 +14,12 @@ export enum HeliosRoute {
     PROCESS = '/process',
     
     /**
-     * Represent the route to access the Helios workspace.
+     * Represent the route to work with the list of registered jobs (Hyperion processor instances).
+     */
+    JOBS = '/jobs',
+    
+    /**
+     * Represent the route to work with the Helios workspace.
      */
     WOKSPACE = '/workspace'
 }

@@ -40,6 +40,7 @@ export class HeliosRouterImpl implements HeliosRouter {
     private initRoutes(context: HeliosContext): void {
         this.ruokGet(context);
         this.processPost(context);
+        this.jobsGet(context);
     }
 
     /**
@@ -70,6 +71,13 @@ export class HeliosRouterImpl implements HeliosRouter {
                 HeliosLogger.getLogger().error(e.toString());
                 res.sendStatus(ErrorUtil.resolveHttpCode(e));
             }
+        });
+    }
+
+    private jobsGet(context: HeliosContext): void {
+        this.ROUTER.get(HeliosRoute.JOBS, (req: express.Request, res: express.Response) => {
+            this.logRoute(req, 'GET /jobs');
+            res.send('List of registered processors');
         });
     }
 }
