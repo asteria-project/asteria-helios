@@ -3,6 +3,7 @@ import { HeliosRouter } from '../HeliosRouter';
 import { HeliosLogger } from '../../util/logging/HeliosLogger';
 import { HeliosRoute } from '../HeliosRoute';
 import { Hyperion, HyperionConfig } from 'asteria-hyperion';
+import { ErrorUtil } from 'asteria-gaia';
 
 /**
  * The default implementation of the <code>HeliosRouter</code> interface.
@@ -36,6 +37,12 @@ export class HeliosRouterImpl implements HeliosRouter {
         this.processPost();
     }
 
+    /**
+     * Print logs for the specified route.
+     * 
+     * @param {Request} req the Express request reference for which to print logs.
+     * @param {string} route the "METHOD / route" pari for which to print logs.
+     */
     private logRoute(req: express.Request, route: string): void {
         HeliosLogger.getLogger().info(`${req.hostname} ${route}`);
     }
@@ -52,12 +59,11 @@ export class HeliosRouterImpl implements HeliosRouter {
             const config: HyperionConfig = req.body;
             this.logRoute(req, 'POST /process');
             try {
-                // TODO add hyperion errors
                 const processor: Hyperion = Hyperion.build(config);
                 (processor.run() as any).pipe(res);
             } catch (e) {
                 HeliosLogger.getLogger().error(e.toString());
-                res.sendStatus(500);
+                res.sendStatus(ErrorUtil.resolveHttpCode(e));
             }
         });
     }
