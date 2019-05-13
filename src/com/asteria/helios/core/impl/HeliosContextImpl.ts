@@ -9,6 +9,7 @@ import { HeliosContext } from '../HeliosContext';
 import { HeliosRouterImpl } from '../../route/impl/HeliosRouterImpl';
 import { HeliosRouter } from '../../route/HeliosRouter';
 import { ProcessorRegistry } from '../../spi/processor/ProcessorRegistry';
+import { ProcessorRegistryFactory } from '../../spi/processor/factory/ProcessorRegistryFactory';
 
 /**
  * The default implementation of the <code>HeliosContext</code> interface.
@@ -36,6 +37,11 @@ export class HeliosContextImpl extends AbstractAsteriaObject implements HeliosCo
     private readonly WORKSPACE: string;
 
     /**
+     * The reference to the processor registry used whithin this context.
+     */
+    private readonly PROCESSOR_REGISTRY: ProcessorRegistry;
+
+    /**
      * Create a new <code>HeliosContextImpl</code> instance.
      * 
      * @param {HeliosConfig} config the configuration for this server instance.
@@ -46,6 +52,7 @@ export class HeliosContextImpl extends AbstractAsteriaObject implements HeliosCo
         this.SERVER = express();
         this.PORT = config.port;
         this.WORKSPACE = path.join(__dirname, config.workspace);
+        this.PROCESSOR_REGISTRY = this.initProcessorRegistry(config);
         this.initServer(config);
     }
 
@@ -81,7 +88,7 @@ export class HeliosContextImpl extends AbstractAsteriaObject implements HeliosCo
      * @inheritdoc
      */
     public getProcessRegistry(): ProcessorRegistry {
-        return null;
+        return this.PROCESSOR_REGISTRY;
     }
 
     /**
@@ -95,5 +102,17 @@ export class HeliosContextImpl extends AbstractAsteriaObject implements HeliosCo
         this.SERVER.use(bodyParser.json());
         this.SERVER.use(helmet());
         this.SERVER.use(path, router.getRouter());
+    }
+
+    /**
+     * Create and return a new <code>ProcessorRegistry</code> instance depending on the specified config.
+     * 
+     * @param {HeliosConfig} config the configuration for this server instance.
+     * 
+     * @returns a new <code>ProcessorRegistry</code> instance.
+     */
+    private initProcessorRegistry(config: HeliosConfig): ProcessorRegistry {
+        const factory: ProcessorRegistryFactory = new ProcessorRegistryFactory(config);
+        return factory.create();
     }
 }

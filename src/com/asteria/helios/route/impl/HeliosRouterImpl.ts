@@ -38,9 +38,9 @@ export class HeliosRouterImpl implements HeliosRouter {
      * @param {HeliosContext} context the context associated with this router.
      */
     private initRoutes(context: HeliosContext): void {
-        this.ruokGet(context);
-        this.processPost(context);
-        this.jobsGet(context);
+        this.ruok(context);
+        this.process(context);
+        this.jobs(context);
     }
 
     /**
@@ -53,19 +53,23 @@ export class HeliosRouterImpl implements HeliosRouter {
         HeliosLogger.getLogger().info(`${req.hostname} ${route}`);
     }
 
-    private ruokGet(context: HeliosContext): void {
+    private ruok(context: HeliosContext): void {
         this.ROUTER.get(HeliosRoute.RUOK, (req: express.Request, res: express.Response) => {
             this.logRoute(req, 'GET /ruok');
             res.send('I\'m still alive!');
         });
     }
 
-    private processPost(context: HeliosContext): void {
+    private process(context: HeliosContext): void {
         this.ROUTER.post(HeliosRoute.PROCESS, (req: express.Request, res: express.Response) => {
             const config: HyperionConfig = req.body;
             this.logRoute(req, 'POST /process');
             try {
                 const processor: Hyperion = Hyperion.build(config);
+                context.getProcessRegistry().add(processor);
+                res.on('finish', ()=> {
+                    context.getProcessRegistry().remove(processor);
+                });
                 (processor.run() as any).pipe(res);
             } catch (e) {
                 HeliosLogger.getLogger().error(e.toString());
@@ -74,7 +78,7 @@ export class HeliosRouterImpl implements HeliosRouter {
         });
     }
 
-    private jobsGet(context: HeliosContext): void {
+    private jobs(context: HeliosContext): void {
         this.ROUTER.get(HeliosRoute.JOBS, (req: express.Request, res: express.Response) => {
             this.logRoute(req, 'GET /jobs');
             res.send('List of registered processors');
