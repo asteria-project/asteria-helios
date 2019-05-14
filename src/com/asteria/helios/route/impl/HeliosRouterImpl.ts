@@ -41,6 +41,7 @@ export class HeliosRouterImpl implements HeliosRouter {
         this.ruok(context);
         this.process(context);
         this.jobs(context);
+        this.templates(context);
     }
 
     /**
@@ -82,6 +83,13 @@ export class HeliosRouterImpl implements HeliosRouter {
         this.ROUTER.get(HeliosRoute.JOBS, (req: express.Request, res: express.Response) => {
             this.logRoute(req, 'GET /jobs');
             res.send('List of registered processors');
+        });
+    }
+    
+    private templates(context: HeliosContext): void {
+        this.ROUTER.get(HeliosRoute.TEMPLATES, (req: express.Request, res: express.Response) => {
+            this.logRoute(req, 'GET /templates');
+            res.send('List of registered templates');
         });
     }
 }

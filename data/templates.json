@@ -1,0 +1,37 @@
+{
+    "data": [
+        {
+            "id": "b003ee43-64d8-4f16-acb1-d7138a0fc90f",
+            "name": "UsMegaCities",
+            "description": "Extract the list of US cities with more than 1 million residents.",
+            "processes": [
+                {
+                    "type": "read-file",
+                    "config": "workspace/worldcitiespop.csv"
+                },
+                {
+                    "type": "csv-to-list",
+                    "config": {
+                        "separator": ";",
+                        "colsMap": [
+                            { "id": 0, "prop": "country" },
+                            { "id": 2, "prop": "city" },
+                            { "id": 3, "prop": "region" },
+                            { "id": 4, "prop": "population" },
+                            { "id": 5, "prop": "latitude" },
+                            { "id": 6, "prop": "longitude" }
+                        ]
+                    }
+                },
+                {
+                    "type": "filter",
+                    "config": "population > 1000000 AND country = 'us'"
+                },
+                {
+                    "type": "list-to-csv",
+                    "config": { "separator": ";" }
+                }
+            ]
+        }
+    ]
+}

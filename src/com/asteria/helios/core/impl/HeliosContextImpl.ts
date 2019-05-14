@@ -4,7 +4,7 @@ import * as bodyParser from 'body-parser';
 import * as path from 'path';
 import { Uuid } from "asteria-ouranos";
 import { AbstractAsteriaObject } from 'asteria-gaia';
-import { HeliosConfig } from '../../config/HeliosConfig';
+import { HeliosConfig } from '../../../eos/config/HeliosConfig';
 import { HeliosContext } from '../HeliosContext';
 import { HeliosRouterImpl } from '../../route/impl/HeliosRouterImpl';
 import { HeliosRouter } from '../../route/HeliosRouter';

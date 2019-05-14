@@ -1,6 +1,6 @@
 
 /**
- * The <code>HeliosConfig</code> interface represents configuration of a server object in the Helios framework.
+ * The <code>HeliosConfig</code> interface represents the configuration for an Helios server.
  */
 export interface HeliosConfig {
 
