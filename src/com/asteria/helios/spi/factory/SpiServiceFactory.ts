@@ -1,5 +1,3 @@
-import { HeliosConfig } from '../../../eos/config/HeliosConfig';
-import { SpiContext } from '../SpiContext';
 /**
  * The <code>SpiServiceFactory</code> class allows to create service factories that are implemented whithin a
  * <code>ServiceContext</code> implementation.

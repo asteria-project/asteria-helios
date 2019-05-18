@@ -39,6 +39,13 @@ export abstract class AbstractRegistry<T> extends AbstractAsteriaObject implemen
     /**
      * @inheritdoc
      */
+    public getAll(): Array<T> {
+        return Array.from(this.MAP.values());
+    }
+
+    /**
+     * @inheritdoc
+     */
     public getIds(): Array<string> {
         return Array.from(this.MAP.keys());
     }

@@ -5,7 +5,7 @@ import { HeliosLogger } from '../../util/logging/HeliosLogger';
 import { HeliosContext } from '../HeliosContext';
 import { HeliosContextImpl } from "./HeliosContextImpl";
 import { SplashScreen } from '../../util/spashscreen/SpashScreen';
-import { HeliosConfig } from '../../../eos/config/HeliosConfig';
+import { HeliosConfig } from '../HeliosConfig';
 
 /**
  * The default implementation of the <code>Helios</code> interface.
@@ -15,7 +15,7 @@ export class HeliosImpl extends AbstractAsteriaObject implements Helios {
     /**
      * The execution context for this server instance.
      */
-    private readonly CONTEXT: HeliosContext;
+    private readonly CONTEXT: HeliosContext = null;
 
     /**
      * Create a new <code>HeliosImpl</code> instance.

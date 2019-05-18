@@ -6,6 +6,9 @@ import { Hyperion, HyperionConfig } from 'asteria-hyperion';
 import { ErrorUtil } from 'asteria-gaia';
 import { HeliosContext } from '../../core/HeliosContext';
 import { SpiContext } from '../../spi/SpiContext';
+import { HeliosServiceName } from '../../core/HeliosServiceName';
+import { TemplateRegistry } from '../../connector/template/TemplateRegistry';
+import { HeliosTemplate } from '../../../eos/business/HeliosTemplate';
 
 /**
  * The default implementation of the <code>HeliosRouter</code> interface.
@@ -69,9 +72,9 @@ export class HeliosRouterImpl implements HeliosRouter {
             try {
                 const processor: Hyperion = Hyperion.build(config);
                 const spi: SpiContext = context.getSpiContext();
-                spi.getService('processor-registry').add(processor);
+                spi.getService(HeliosServiceName.PROCESSOR_REGISTRY).add(processor);
                 res.on('finish', ()=> {
-                    spi.getService('processor-registry').remove(processor);
+                    spi.getService(HeliosServiceName.PROCESSOR_REGISTRY).remove(processor);
                 });
                 (processor.run() as any).pipe(res);
             } catch (e) {
@@ -91,7 +94,9 @@ export class HeliosRouterImpl implements HeliosRouter {
     private templates(context: HeliosContext): void {
         this.ROUTER.get(HeliosRoute.TEMPLATES, (req: express.Request, res: express.Response) => {
             this.logRoute(req, 'GET /templates');
-            res.send('List of registered templates');
+            const registry: TemplateRegistry = context.getSpiContext().getService(HeliosServiceName.TEMPLATE_REGISTRY);
+            const templates: Array<HeliosTemplate> = registry.getAll();
+            res.send(templates);
         });
     }
 }

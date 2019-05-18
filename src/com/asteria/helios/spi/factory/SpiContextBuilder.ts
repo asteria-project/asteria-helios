@@ -1,7 +1,7 @@
-import { HeliosConfig } from '../../../eos/config/HeliosConfig';
 import { SpiContext } from '../SpiContext';
 import { SpiContextImpl } from '../core/SpiContextImpl';
 import { AbstractAsteriaObject } from 'asteria-gaia';
+import { HeliosConfig } from '../../core/HeliosConfig';
 
 /**
  * The <code>SpiContextBuilder</code> class allows to create <code>SpiContext</code> objects depending on the current 

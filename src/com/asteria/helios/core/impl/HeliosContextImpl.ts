@@ -4,13 +4,13 @@ import * as bodyParser from 'body-parser';
 import * as path from 'path';
 import { Uuid } from "asteria-ouranos";
 import { AbstractAsteriaObject } from 'asteria-gaia';
-import { HeliosConfig } from '../../../eos/config/HeliosConfig';
 import { HeliosContext } from '../HeliosContext';
 import { HeliosRouterImpl } from '../../route/impl/HeliosRouterImpl';
 import { HeliosRouter } from '../../route/HeliosRouter';
 import { SpiContext } from '../../spi/SpiContext';
 import { SpiContextBuilder } from '../../spi/factory/SpiContextBuilder';
 import { HeliosLogger } from '../../util/logging/HeliosLogger';
+import { HeliosConfig } from '../HeliosConfig';
 
 /**
  * The default implementation of the <code>HeliosContext</code> interface.
@@ -20,27 +20,27 @@ export class HeliosContextImpl extends AbstractAsteriaObject implements HeliosCo
     /**
      * The internal reference to the <code>Express</code> app.
      */
-    private readonly SERVER: express.Express;
+    private readonly SERVER: express.Express = null;
 
     /**
      * The unique identifier for this server instance.
      */
-    private readonly GUID: string;
+    private readonly GUID: string = null;
     
     /**
      * The port used by the server for listening conections.
      */
-    private readonly PORT: number;
+    private readonly PORT: number = null;
 
     /**
      * The path to the workspace associated with this context.
      */
-    private readonly WORKSPACE: string;
+    private readonly WORKSPACE: string = null;
 
     /**
      * The reference to the SPI context used whithin this context.
      */
-    private readonly SPI_CONTEXT: SpiContext;
+    private readonly SPI_CONTEXT: SpiContext = null;
 
     /**
      * Create a new <code>HeliosContextImpl</code> instance.
