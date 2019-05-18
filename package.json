@@ -14,6 +14,7 @@
   },
   "homepage": "https://github.com/asteria-helios/asteria-helios#readme",
   "dependencies": {
+    "asteria-eos": "^0.3.0",
     "asteria-gaia": "^0.3.0",
     "asteria-hyperion": "^0.3.0",
     "asteria-ouranos": "^0.3.0",

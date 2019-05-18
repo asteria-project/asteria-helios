@@ -8,7 +8,7 @@ import { HeliosContext } from '../../core/HeliosContext';
 import { SpiContext } from '../../spi/SpiContext';
 import { HeliosServiceName } from '../../core/HeliosServiceName';
 import { TemplateRegistry } from '../../connector/template/TemplateRegistry';
-import { HeliosTemplate } from '../../../eos/business/HeliosTemplate';
+import { HeliosTemplate } from 'asteria-eos';
 
 /**
  * The default implementation of the <code>HeliosRouter</code> interface.

@@ -1,6 +1,6 @@
 import { AbstractRegistry } from '../../../core/impl/AbstractRegistry';
 import { TemplateRegistry } from '../TemplateRegistry';
-import { HeliosTemplate } from '../../../../eos/business/HeliosTemplate';
+import { HeliosTemplate } from 'asteria-eos';
 import { FileLoader } from '../../../util/io/FileLoader';
 import * as path from 'path';
 import { HeliosLogger } from '../../../util/logging/HeliosLogger';
