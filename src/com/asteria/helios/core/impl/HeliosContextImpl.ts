@@ -8,8 +8,8 @@ import { HeliosConfig } from '../../../eos/config/HeliosConfig';
 import { HeliosContext } from '../HeliosContext';
 import { HeliosRouterImpl } from '../../route/impl/HeliosRouterImpl';
 import { HeliosRouter } from '../../route/HeliosRouter';
-import { ProcessorRegistry } from '../../spi/processor/ProcessorRegistry';
-import { ProcessorRegistryFactory } from '../../spi/processor/factory/ProcessorRegistryFactory';
+import { SpiContext } from '../../spi/SpiContext';
+import { SpiContextFactory } from '../../spi/factory/SpiContextFactory';
 
 /**
  * The default implementation of the <code>HeliosContext</code> interface.
@@ -37,9 +37,9 @@ export class HeliosContextImpl extends AbstractAsteriaObject implements HeliosCo
     private readonly WORKSPACE: string;
 
     /**
-     * The reference to the processor registry used whithin this context.
+     * The reference to the SPI context used whithin this context.
      */
-    private readonly PROCESSOR_REGISTRY: ProcessorRegistry;
+    private readonly SPI_CONTEXT: SpiContext;
 
     /**
      * Create a new <code>HeliosContextImpl</code> instance.
@@ -52,7 +52,7 @@ export class HeliosContextImpl extends AbstractAsteriaObject implements HeliosCo
         this.SERVER = express();
         this.PORT = config.port;
         this.WORKSPACE = path.join(__dirname, config.workspace);
-        this.PROCESSOR_REGISTRY = this.initProcessorRegistry(config);
+        this.SPI_CONTEXT = this.initSpiContext(config);
         this.initServer(config);
     }
 
@@ -87,8 +87,8 @@ export class HeliosContextImpl extends AbstractAsteriaObject implements HeliosCo
     /**
      * @inheritdoc
      */
-    public getProcessRegistry(): ProcessorRegistry {
-        return this.PROCESSOR_REGISTRY;
+    public getSpiContext(): SpiContext {
+        return this.SPI_CONTEXT;
     }
 
     /**
@@ -105,14 +105,14 @@ export class HeliosContextImpl extends AbstractAsteriaObject implements HeliosCo
     }
 
     /**
-     * Create and return a new <code>ProcessorRegistry</code> instance depending on the specified config.
+     * Create and return a new <code>SpiContext</code> object depending on the specified config.
      * 
      * @param {HeliosConfig} config the configuration for this server instance.
      * 
-     * @returns a new <code>ProcessorRegistry</code> instance.
+     * @returns a new <code>SpiContext</code> instance.
      */
-    private initProcessorRegistry(config: HeliosConfig): ProcessorRegistry {
-        const factory: ProcessorRegistryFactory = new ProcessorRegistryFactory(config);
+    private initSpiContext(config: HeliosConfig): SpiContext {
+        const factory: SpiContextFactory = new SpiContextFactory(config);
         return factory.create();
     }
 }

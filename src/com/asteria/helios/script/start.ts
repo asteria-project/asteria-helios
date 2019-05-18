@@ -1,4 +1,6 @@
 import { HeliosFactory } from '../util/factory/HeliosFactory';
+import { Helios } from '../core/Helios';
 
-HeliosFactory.create()
-             .start();
+const server: Helios = HeliosFactory.create();
+server.getContext().getSpiContext();
+server.start();

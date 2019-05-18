@@ -1,11 +1,11 @@
 
 import { AbstractAsteriaObject } from 'asteria-gaia';
 import { Helios } from '../Helios';
-import { HeliosConfig } from '../../config/HeliosConfig';
 import { HeliosLogger } from '../../util/logging/HeliosLogger';
 import { HeliosContext } from '../HeliosContext';
 import { HeliosContextImpl } from "./HeliosContextImpl";
 import { SplashScreen } from '../../util/spashscreen/SpashScreen';
+import { HeliosConfig } from '../../../eos/config/HeliosConfig';
 
 /**
  * The default implementation of the <code>Helios</code> interface.

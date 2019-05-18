@@ -1,3 +1,4 @@
+import { HeliosProcessDescriptor } from './HeliosProcessDescriptor';
 
 /**
  * The <code>HeliosTemplate</code> interface represents the template used by helios to define an Asteria process.
@@ -22,5 +23,5 @@ export interface HeliosTemplate {
     /**
      * The list of Asteria processes associated with this template.
      */
-    processes: { type: string; config: any }[];
+    processes: HeliosProcessDescriptor[];
 }

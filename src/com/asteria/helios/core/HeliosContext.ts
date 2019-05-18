@@ -1,5 +1,5 @@
 import express from 'express';
-import { ProcessorRegistry } from '../spi/processor/ProcessorRegistry';
+import { SpiContext } from '../spi/SpiContext';
 
 /**
  * The <code>HeliosContext</code> interface represents the exection context of a server object in the Helios framework.
@@ -35,9 +35,9 @@ export interface HeliosContext {
     getWorkspace(): string;
 
     /**
-     * Return the reference to the registry where all Hyperion processors are stored.
+     * Return the reference to the <code>SpiContext</code> object for this context.
      * 
-     * @returns {ProcessorRegistry} the reference to the registry where all Hyperion processors are stored.
+     * @returns {SpiContext} the <code>SpiContext</code> object for this context.
      */
-    getProcessRegistry(): ProcessorRegistry;
+    getSpiContext(): SpiContext;
 }

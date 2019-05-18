@@ -5,6 +5,7 @@ import { HeliosRoute } from '../HeliosRoute';
 import { Hyperion, HyperionConfig } from 'asteria-hyperion';
 import { ErrorUtil } from 'asteria-gaia';
 import { HeliosContext } from '../../core/HeliosContext';
+import { SpiContext } from '../../spi/SpiContext';
 
 /**
  * The default implementation of the <code>HeliosRouter</code> interface.
@@ -67,9 +68,10 @@ export class HeliosRouterImpl implements HeliosRouter {
             this.logRoute(req, 'POST /process');
             try {
                 const processor: Hyperion = Hyperion.build(config);
-                context.getProcessRegistry().add(processor);
+                const spi: SpiContext = context.getSpiContext();
+                spi.getProcessorRegistry().add(processor);
                 res.on('finish', ()=> {
-                    context.getProcessRegistry().remove(processor);
+                    spi.getProcessorRegistry().remove(processor);
                 });
                 (processor.run() as any).pipe(res);
             } catch (e) {
