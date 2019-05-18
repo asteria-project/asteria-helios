@@ -26,7 +26,6 @@ export class HeliosImpl extends AbstractAsteriaObject implements Helios {
         super('com.asteria.helios.core.impl::HeliosImpl');
         SplashScreen.create();
         this.CONTEXT = new HeliosContextImpl(config);
-        HeliosLogger.getLogger().info(`server created with ID: ${this.CONTEXT.getId()}`);
     }
 
     /**
@@ -40,13 +39,15 @@ export class HeliosImpl extends AbstractAsteriaObject implements Helios {
      * @inheritdoc
      */
     public start(): void {
-        HeliosLogger.getLogger().info('server started');
+        HeliosLogger.getLogger().info('starting server');
         const port: number = this.CONTEXT.getPort();
         try {
+            this.CONTEXT.getSpiContext().lookup();
             this.CONTEXT.getServer().listen(port);
             HeliosLogger.getLogger().info(`listening conections on port ${port}`);
         } catch (e) {
             HeliosLogger.getLogger().fatal(`server start failed:\n${e}`);
         }
+        HeliosLogger.getLogger().info('server is ready for data analytics');
     }
 }

@@ -69,9 +69,9 @@ export class HeliosRouterImpl implements HeliosRouter {
             try {
                 const processor: Hyperion = Hyperion.build(config);
                 const spi: SpiContext = context.getSpiContext();
-                spi.getProcessorRegistry().add(processor);
+                spi.getService('processor-registry').add(processor);
                 res.on('finish', ()=> {
-                    spi.getProcessorRegistry().remove(processor);
+                    spi.getService('processor-registry').remove(processor);
                 });
                 (processor.run() as any).pipe(res);
             } catch (e) {

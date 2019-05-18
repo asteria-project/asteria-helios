@@ -26,4 +26,11 @@ export interface Registry<T> {
      * @returns {T} the item to rfind.
      */
     get(id: string): T;
+
+    /**
+     * Return an array of all identifiers declared in this registry.
+     * 
+     * @returns {Array<string>} an array of all identifiers declared in this registry.
+     */
+    getIds(): Array<string>;
 }

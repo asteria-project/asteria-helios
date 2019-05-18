@@ -9,7 +9,8 @@ import { HeliosContext } from '../HeliosContext';
 import { HeliosRouterImpl } from '../../route/impl/HeliosRouterImpl';
 import { HeliosRouter } from '../../route/HeliosRouter';
 import { SpiContext } from '../../spi/SpiContext';
-import { SpiContextFactory } from '../../spi/factory/SpiContextFactory';
+import { SpiContextBuilder } from '../../spi/factory/SpiContextBuilder';
+import { HeliosLogger } from '../../util/logging/HeliosLogger';
 
 /**
  * The default implementation of the <code>HeliosContext</code> interface.
@@ -48,7 +49,9 @@ export class HeliosContextImpl extends AbstractAsteriaObject implements HeliosCo
      */
     constructor(config: HeliosConfig) {
         super('com.asteria.helios.core.impl::HeliosContextImpl');
+        HeliosLogger.getLogger().info('initializing server context');
         this.GUID = Uuid.v4();
+        HeliosLogger.getLogger().info(`server created with ID: ${this.GUID}`);
         this.SERVER = express();
         this.PORT = config.port;
         this.WORKSPACE = path.join(__dirname, config.workspace);
@@ -112,7 +115,7 @@ export class HeliosContextImpl extends AbstractAsteriaObject implements HeliosCo
      * @returns a new <code>SpiContext</code> instance.
      */
     private initSpiContext(config: HeliosConfig): SpiContext {
-        const factory: SpiContextFactory = new SpiContextFactory(config);
-        return factory.create();
+        const builder: SpiContextBuilder = new SpiContextBuilder();
+        return builder.build(config);
     }
 }

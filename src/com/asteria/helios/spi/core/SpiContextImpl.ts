@@ -1,8 +1,12 @@
 import { HeliosConfig } from '../../../eos/config/HeliosConfig';
 import { SpiContext } from '../SpiContext';
-import { ProcessorRegistry } from '../processor/ProcessorRegistry';
 import { AbstractAsteriaObject } from 'asteria-gaia';
-import { ProcessorRegistryFactory } from '../factory/ProcessorRegistryFactory';
+import { ServiceContext } from '../service/ServiceContext';
+import { ProcessorRegistryIMServiceContext } from '../../connector/processor/context/ProcessorRegistryIMServiceContext';
+import { ServiceContextRegistryImpl } from './ServiceContextRegistryImpl';
+import { ServiceContextRegistry } from '../service/ServiceContextRegistry';
+import { SpiServiceFactory } from '../factory/SpiServiceFactory';
+import { HeliosLogger } from '../../util/logging/HeliosLogger';
 
 /**
  * The <code>SpiContextImpl</code> class is the default implementation of the <code>SpiContext</code> interface.
@@ -15,9 +19,14 @@ export class SpiContextImpl extends AbstractAsteriaObject implements SpiContext 
     private readonly CONFIG: HeliosConfig = null;
 
     /**
-     * The reference to the processor registry used whithin this context.
+     * The service context registry for this SPI.
      */
-    private processorRegistry: ProcessorRegistry = null;
+    private readonly SERVICE_CONTEXT_REGISTRY: ServiceContextRegistry = null;
+    
+    /**
+     * The list of services registred for this SPI.
+     */
+    private readonly SERVICES: Map<string, any> = null;
 
     /**
      * Create a new <code>SpiContextImpl</code> instance.
@@ -27,23 +36,55 @@ export class SpiContextImpl extends AbstractAsteriaObject implements SpiContext 
     constructor(config: HeliosConfig) {
         super('com.asteria.helios.spi.core::SpiContextImpl');
         this.CONFIG = config;
+        this.SERVICE_CONTEXT_REGISTRY = this.createContext();
+        this.SERVICES = new Map<string, any>();
+        this.initContext();
     }
 
     /**
      * @inheritdoc
      */
-    public getProcessorRegistry(): ProcessorRegistry {
-        if (!this.processorRegistry) {
-            this.initProcessorRegistry();
-        }
-        return this.processorRegistry;
+    public addServiceContext(context: ServiceContext): void {
+        HeliosLogger.getLogger().info(`adding service context to SPI: name=${context.getName()}`);
+        this.SERVICE_CONTEXT_REGISTRY.add(context);
     }
     
     /**
-     * Create a <code>ProcessorRegistry</code> instance depending on the specified config.
+     * @inheritdoc
      */
-    private initProcessorRegistry(): void {
-        const factory: ProcessorRegistryFactory = new ProcessorRegistryFactory(this.CONFIG);
-        this.processorRegistry = factory.create();
+    public lookup(): void {
+        HeliosLogger.getLogger().info('initializing services');
+        this.SERVICE_CONTEXT_REGISTRY.getIds().forEach((id: string)=> {
+            const ctx: ServiceContext = this.SERVICE_CONTEXT_REGISTRY.get(id);
+            const factory: SpiServiceFactory = ctx.getFactory(this.CONFIG);
+            const service: any = factory.create();
+            const svcName: string = ctx.getName();
+            this.SERVICES.set(svcName, service);
+            HeliosLogger.getLogger().info(`service "${svcName}" started`);
+        });
+        HeliosLogger.getLogger().info('services initialized');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public getService(name: string): any {
+        return this.SERVICES.get(name);
+    }
+
+    /**
+     * Create and return the service context registry for this SPI.
+     * 
+     * @return {ServiceContextRegistry} the service context registry for this SPI.
+     */
+    private createContext(): ServiceContextRegistry {
+        return new ServiceContextRegistryImpl();
+    }
+    
+    /**
+     * Initialize the service context registry for this SPI with the default Helios services.
+     */
+    private initContext(): void {
+        this.addServiceContext(new ProcessorRegistryIMServiceContext());
     }
 }

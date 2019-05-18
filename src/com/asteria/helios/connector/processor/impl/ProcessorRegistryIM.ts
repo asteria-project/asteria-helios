@@ -1,6 +1,6 @@
 import { Hyperion } from 'asteria-hyperion';
-import { AbstractRegistry } from '../../core/AbstractRegistry';
 import { ProcessorRegistry } from '../ProcessorRegistry';
+import { AbstractRegistry } from '../../../core/impl/AbstractRegistry';
 
 /**
  * An "in-memory" implementation of the <code>ProcessorRegistry</code> interface.
@@ -11,7 +11,7 @@ export class ProcessorRegistryIM extends AbstractRegistry<Hyperion> implements P
      * Create a new <code>ProcessorRegistry</code> instance.
      */
     constructor() {
-        super();
+        super('com.asteria.helios.connector.processor.impl::ProcessorRegistry');
     }
 
     /**
