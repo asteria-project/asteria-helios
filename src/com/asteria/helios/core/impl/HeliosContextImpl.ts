@@ -48,10 +48,15 @@ export class HeliosContextImpl extends AbstractAsteriaObject implements HeliosCo
      * Create a new <code>HeliosContextImpl</code> instance.
      * 
      * @param {HeliosConfig} config the configuration for this server instance.
+     * @param {boolean} isDevMode indicates whether this server starts in "development mode" (<code>true</code>), or in
+     *                            "production mode" (<code>true</code>).
      */
-    constructor(config: HeliosConfig) {
+    constructor(config: HeliosConfig, isDevMode: boolean = false) {
         super('com.asteria.helios.core.impl::HeliosContextImpl');
         HeliosLogger.getLogger().info('initializing server context');
+        if (isDevMode) {
+            HeliosLogger.getLogger().warn('server is running in development mode');
+        }
         this.GUID = Uuid.v4();
         HeliosLogger.getLogger().info(`server created with ID: ${this.GUID}`);
         this.SERVER = express();

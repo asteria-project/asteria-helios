@@ -21,11 +21,13 @@ export class HeliosImpl extends AbstractAsteriaObject implements Helios {
      * Create a new <code>HeliosImpl</code> instance.
      * 
      * @param {HeliosConfig} config the configuration for this server instance.
+     * @param {boolean} isDevMode indicates whether this server starts in "development mode" (<code>true</code>), or in
+     *                            "production mode" (<code>true</code>).
      */
-    constructor(config: HeliosConfig) {
+    constructor(config: HeliosConfig, isDevMode: boolean = false) {
         super('com.asteria.helios.core.impl::HeliosImpl');
         SplashScreen.create();
-        this.CONTEXT = new HeliosContextImpl(config);
+        this.CONTEXT = new HeliosContextImpl(config, isDevMode);
     }
 
     /**

@@ -27,7 +27,7 @@ export class FileTemplateRegistry extends AbstractRegistry<HeliosTemplate> imple
     private init(config: HeliosConfig): void {
         HeliosLogger.getLogger().info('initializing template registry');
         const fileLoader: FileLoader = new FileLoader();
-        const filePath: string = path.join(process.cwd(), 'data', 'templates.json');
+        const filePath: string = path.join(process.cwd(), 'server', 'data', 'templates.json');
         fileLoader.loadFileSync(filePath, (input: string)=> {
             //console.log(data)
             const templates: Array<HeliosTemplate> = JSON.parse(input).data;
