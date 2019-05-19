@@ -24,6 +24,11 @@ export enum HeliosRoute {
     TEMPLATES = '/templates',
 
     /**
+     * Represent the route to work with an Helios template depending on its identifier.
+     */
+    TEMPLATE = '/templates/:id',
+
+    /**
      * Represent the route to work with the Helios workspace.
      */
     WOKSPACE = '/workspace'

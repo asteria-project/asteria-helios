@@ -42,14 +42,14 @@ export class FileTemplateRegistry extends AbstractRegistry<HeliosTemplate> imple
      * @inheritdoc
      */
     public add(template: HeliosTemplate): void {
-        this.MAP.set(template.name, template);
+        this.MAP.set(template.id, template);
     }
     
     /**
      * @inheritdoc
      */
     public remove(template: HeliosTemplate): void {
-        this.MAP.delete(template.name);
+        this.MAP.delete(template.id);
     }
 
     /**

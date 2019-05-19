@@ -1,8 +1,9 @@
 import express from 'express';
 import helmet from 'helmet';
+import cors from 'cors';
 import * as bodyParser from 'body-parser';
 import * as path from 'path';
-import { Uuid } from "asteria-ouranos";
+import { Uuid } from 'asteria-ouranos';
 import { AbstractAsteriaObject } from 'asteria-gaia';
 import { HeliosContext } from '../HeliosContext';
 import { HeliosRouterImpl } from '../../route/impl/HeliosRouterImpl';
@@ -11,6 +12,7 @@ import { SpiContext } from '../../spi/SpiContext';
 import { SpiContextBuilder } from '../../spi/factory/SpiContextBuilder';
 import { HeliosLogger } from '../../util/logging/HeliosLogger';
 import { HeliosConfig } from '../HeliosConfig';
+import { Root } from '../Root';
 
 /**
  * The default implementation of the <code>HeliosContext</code> interface.
@@ -101,7 +103,8 @@ export class HeliosContextImpl extends AbstractAsteriaObject implements HeliosCo
      */
     private initServer(config: HeliosConfig): void {
         const router: HeliosRouter = new HeliosRouterImpl(this);
-        const path: string = config.path ? config.path : '/asteria';
+        const path: string = config.path ? config.path : Root.DEFAULT_PATH;
+        this.SERVER.use(cors()); // TODO: implement cors config
         this.SERVER.use(bodyParser.json());
         this.SERVER.use(helmet());
         this.SERVER.use(path, router.getRouter());

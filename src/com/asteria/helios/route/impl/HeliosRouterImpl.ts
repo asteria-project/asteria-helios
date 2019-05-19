@@ -98,5 +98,16 @@ export class HeliosRouterImpl implements HeliosRouter {
             const templates: Array<HeliosTemplate> = registry.getAll();
             res.send(templates);
         });
+        this.ROUTER.get(HeliosRoute.TEMPLATE, (req: express.Request, res: express.Response) => {
+            const id: string = req.params.id;
+            this.logRoute(req, 'GET /templates/' + id);
+            const registry: TemplateRegistry = context.getSpiContext().getService(HeliosServiceName.TEMPLATE_REGISTRY);
+            const template: HeliosTemplate = registry.get(id);
+            if (template) {
+                res.send(template);
+            } else {
+                res.sendStatus(404);
+            }
+        });
     }
 }
