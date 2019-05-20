@@ -1,6 +1,6 @@
 import { Hyperion } from 'asteria-hyperion';
-import { ProcessorRegistry } from '../ProcessorRegistry';
-import { AbstractRegistry } from '../../../core/impl/AbstractRegistry';
+import { AbstractRegistry } from '../../../../../core/impl/AbstractRegistry';
+import { ProcessorRegistry } from '../../../../../service/data/ProcessorRegistry';
 
 /**
  * An "in-memory" implementation of the <code>ProcessorRegistry</code> interface.

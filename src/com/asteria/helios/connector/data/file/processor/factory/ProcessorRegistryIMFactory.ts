@@ -1,8 +1,8 @@
-import { ProcessorRegistry } from '../ProcessorRegistry';
 import { ProcessorRegistryIM } from '../impl/ProcessorRegistryIM';
 import { AbstractAsteriaObject } from 'asteria-gaia';
-import { SpiServiceFactory } from '../../../spi/factory/SpiServiceFactory';
-import { HeliosConfig } from '../../../core/HeliosConfig';
+import { SpiServiceFactory } from '../../../../../spi/factory/SpiServiceFactory';
+import { HeliosConfig } from '../../../../../core/HeliosConfig';
+import { ProcessorRegistry } from '../../../../../service/data/ProcessorRegistry';
 
 /**
  * The <code>ProcessorRegistryIMFactory</code> class allows to create "in memory" <code>ProcessorRegistry</code> 

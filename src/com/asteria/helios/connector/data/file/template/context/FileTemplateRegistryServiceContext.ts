@@ -1,9 +1,9 @@
-import { ServiceContext } from '../../../spi/service/ServiceContext';
-import { SpiServiceFactory } from '../../../spi/factory/SpiServiceFactory';
+import { ServiceContext } from '../../../../../spi/service/ServiceContext';
+import { SpiServiceFactory } from '../../../../../spi/factory/SpiServiceFactory';
 import { FileTemplateRegistryFactory } from '../factory/FileTemplateRegistryFactory';
 import { AbstractAsteriaObject } from 'asteria-gaia';
-import { HeliosServiceName } from '../../../core/HeliosServiceName';
-import { HeliosConfig } from '../../../core/HeliosConfig';
+import { HeliosServiceName } from '../../../../../core/HeliosServiceName';
+import { HeliosConfig } from '../../../../../core/HeliosConfig';
 
 /**
  * The default service context for creating Helios template registries.

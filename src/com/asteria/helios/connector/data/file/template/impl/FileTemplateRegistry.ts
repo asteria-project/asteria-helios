@@ -1,10 +1,10 @@
-import { AbstractRegistry } from '../../../core/impl/AbstractRegistry';
-import { TemplateRegistry } from '../TemplateRegistry';
+import { AbstractRegistry } from '../../../../../core/impl/AbstractRegistry';
 import { HeliosTemplate } from 'asteria-eos';
-import { FileLoader } from '../../../util/io/FileLoader';
+import { FileLoader } from '../../../../../util/io/FileLoader';
 import * as path from 'path';
-import { HeliosLogger } from '../../../util/logging/HeliosLogger';
-import { HeliosConfig } from '../../../core/HeliosConfig';
+import { HeliosLogger } from '../../../../../util/logging/HeliosLogger';
+import { HeliosConfig } from '../../../../../core/HeliosConfig';
+import { TemplateRegistry } from '../../../../../service/data/TemplateRegistry';
 
 /**
  * An implementation of the <code>TemplateRegistry</code> interface that stores templates in the file system.

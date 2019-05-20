@@ -1,13 +1,13 @@
 import { SpiContext } from '../SpiContext';
 import { AbstractAsteriaObject } from 'asteria-gaia';
 import { ServiceContext } from '../service/ServiceContext';
-import { ProcessorRegistryIMServiceContext } from '../../connector/processor/context/ProcessorRegistryIMServiceContext';
 import { ServiceContextRegistryImpl } from './ServiceContextRegistryImpl';
 import { ServiceContextRegistry } from '../service/ServiceContextRegistry';
 import { SpiServiceFactory } from '../factory/SpiServiceFactory';
 import { HeliosLogger } from '../../util/logging/HeliosLogger';
-import { FileTemplateRegistryServiceContext } from '../../connector/template/context/FileTemplateRegistryServiceContext';
 import { HeliosConfig } from '../../core/HeliosConfig';
+import { ProcessorRegistryIMServiceContext } from '../../connector/data/file/processor/context/ProcessorRegistryIMServiceContext';
+import { FileTemplateRegistryServiceContext } from '../../connector/data/file/template/context/FileTemplateRegistryServiceContext';
 
 /**
  * The <code>SpiContextImpl</code> class is the default implementation of the <code>SpiContext</code> interface.

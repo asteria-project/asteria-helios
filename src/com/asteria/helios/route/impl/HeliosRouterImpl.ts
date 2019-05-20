@@ -7,8 +7,8 @@ import { ErrorUtil } from 'asteria-gaia';
 import { HeliosContext } from '../../core/HeliosContext';
 import { SpiContext } from '../../spi/SpiContext';
 import { HeliosServiceName } from '../../core/HeliosServiceName';
-import { TemplateRegistry } from '../../connector/template/TemplateRegistry';
 import { HeliosTemplate } from 'asteria-eos';
+import { TemplateRegistry } from '../../service/data/TemplateRegistry';
 
 /**
  * The default implementation of the <code>HeliosRouter</code> interface.
