@@ -3,12 +3,13 @@ import { HeliosRouter } from '../HeliosRouter';
 import { HeliosLogger } from '../../util/logging/HeliosLogger';
 import { HeliosRoute } from '../HeliosRoute';
 import { Hyperion, HyperionConfig } from 'asteria-hyperion';
-import { ErrorUtil, AsteriaException } from 'asteria-gaia';
+import { ErrorUtil } from 'asteria-gaia';
 import { HeliosContext } from '../../core/HeliosContext';
 import { SpiContext } from '../../spi/SpiContext';
 import { HeliosServiceName } from '../../core/HeliosServiceName';
-import { HeliosTemplate } from 'asteria-eos';
-import { TemplateRegistry } from '../../service/data/TemplateRegistry';
+import { HeliosRouterLogUtils } from '../../util/route/HeliosRouterLogUtils';
+import { RuokConfigurator } from '../configurator/RuokConfigurator';
+import { TemplatesConfigurator } from '../configurator/TemplatesConfigurator';
 
 /**
  * The default implementation of the <code>HeliosRouter</code> interface.
@@ -42,33 +43,22 @@ export class HeliosRouterImpl implements HeliosRouter {
      * @param {HeliosContext} context the context associated with this router.
      */
     private initRoutes(context: HeliosContext): void {
+        HeliosLogger.getLogger().info('initializing HTTP routes');
         this.ruok(context);
         this.process(context);
         this.jobs(context);
         this.templates(context);
-    }
-
-    /**
-     * Print logs for the specified route.
-     * 
-     * @param {Request} req the Express request reference for which to print logs.
-     * @param {string} route the "METHOD / route" pari for which to print logs.
-     */
-    private logRoute(req: express.Request, route: string): void {
-        HeliosLogger.getLogger().info(`${req.hostname} ${route}`);
+        HeliosLogger.getLogger().info('HTTP routes initialized');
     }
 
     private ruok(context: HeliosContext): void {
-        this.ROUTER.get(HeliosRoute.RUOK, (req: express.Request, res: express.Response) => {
-            this.logRoute(req, 'GET /ruok');
-            res.send('I\'m still alive!');
-        });
+        new RuokConfigurator().createRoute(this, context);
     }
 
     private process(context: HeliosContext): void {
         this.ROUTER.post(HeliosRoute.PROCESS, (req: express.Request, res: express.Response) => {
             const config: HyperionConfig = req.body;
-            this.logRoute(req, 'POST /process');
+            HeliosRouterLogUtils.logRoute(req, 'POST /process');
             try {
                 const processor: Hyperion = Hyperion.build(config);
                 const spi: SpiContext = context.getSpiContext();
@@ -86,39 +76,12 @@ export class HeliosRouterImpl implements HeliosRouter {
 
     private jobs(context: HeliosContext): void {
         this.ROUTER.get(HeliosRoute.JOBS, (req: express.Request, res: express.Response) => {
-            this.logRoute(req, 'GET /jobs');
+            HeliosRouterLogUtils.logRoute(req, 'GET /jobs');
             res.send('List of registered processors');
         });
     }
     
     private templates(context: HeliosContext): void {
-        this.ROUTER.get(HeliosRoute.TEMPLATES, (req: express.Request, res: express.Response) => {
-            this.logRoute(req, 'GET /templates');
-            const registry: TemplateRegistry = context.getSpiContext().getService(HeliosServiceName.TEMPLATE_REGISTRY);
-            registry.getAll((err:AsteriaException,  templates: Array<HeliosTemplate>)=> {
-                if (err) {
-                    res.sendStatus(500);
-                } else {
-                    res.send(templates);
-                }
-            });
-            
-        });
-        this.ROUTER.get(HeliosRoute.TEMPLATE, (req: express.Request, res: express.Response) => {
-            const id: string = req.params.id;
-            this.logRoute(req, 'GET /templates/' + id);
-            const registry: TemplateRegistry = context.getSpiContext().getService(HeliosServiceName.TEMPLATE_REGISTRY);
-            registry.get(id, (err:AsteriaException, template: HeliosTemplate)=> {
-                if (err) {
-                    res.sendStatus(500);
-                } else {
-                    if (template) {
-                        res.send(template);
-                    } else {
-                        res.sendStatus(404);
-                    }
-                }
-            });
-        });
+        new TemplatesConfigurator().createRoute(this, context);
     }
 }
