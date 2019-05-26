@@ -1,5 +1,5 @@
-import express from 'express';
 import { SpiContext } from '../spi/SpiContext';
+import { HeliosServer } from './HeliosServer';
 
 /**
  * The <code>HeliosContext</code> interface represents the exection context of a server object in the Helios framework.
@@ -14,19 +14,26 @@ export interface HeliosContext {
     getId(): string;
 
     /**
-     * Return the HTP server associated with this context.
+     * Return the Helios server associated with this context.
      * 
-     * @returns {Express} the HTP server associated with this context.
+     * @returns {HeliosServer} the Helios server associated with this context.
      */
-    getServer(): express.Express;
-
+    getServer(): HeliosServer;
+    
     /**
-     * Return the port used by the server for listening conections.
+     * Return the port used by the context for listening conections.
      * 
-     * @returns {number} the port used by the server for listening conections.
+     * @returns {number} the port used by the context for listening conections.
      */
     getPort(): number;
-    
+
+    /**
+     * Return the Helios application path.
+     * 
+     * @returns {string} the Helios application path.
+     */
+    getPath(): string;
+
     /**
      * Return the path to the workspace associated with this context.
      * 

@@ -42,14 +42,12 @@ export class HeliosImpl extends AbstractAsteriaObject implements Helios {
      */
     public start(): void {
         HeliosLogger.getLogger().info('starting server');
-        const port: number = this.CONTEXT.getPort();
         this.CONTEXT.getSpiContext().lookup((err: AsteriaException)=> {
             if (err) {
                 HeliosLogger.getLogger().fatal(`server initialization failed:\n${err}`);
             } else {
                 try {
-                    this.CONTEXT.getServer().listen(port);
-                    HeliosLogger.getLogger().info(`listening conections on port ${port}`);
+                    this.CONTEXT.getServer().start();
                     HeliosLogger.getLogger().info('server is ready for data analytics');
                 } catch (e) {
                     HeliosLogger.getLogger().fatal(`server start failed:\n${e}`);

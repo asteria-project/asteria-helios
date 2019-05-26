@@ -1,7 +1,7 @@
-import { HeliosContext } from "./HeliosContext";
+import { HeliosContext } from './HeliosContext';
 
 /**
- * The <code>Helios</code> interface represents a server object in the Helios framework.
+ * The <code>Helios</code> interface represents the entry point of the Helios framework.
  */
 export interface Helios {
 
@@ -13,7 +13,7 @@ export interface Helios {
     /**
      * Return the context for this server.
      * 
-     * @return {HeliosContext} he context for this server.
+     * @return {HeliosContext} the context for this server.
      */
     getContext(): HeliosContext;
 }

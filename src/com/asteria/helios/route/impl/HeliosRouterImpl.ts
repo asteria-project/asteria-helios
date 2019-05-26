@@ -3,13 +3,14 @@ import { HeliosRouter } from '../HeliosRouter';
 import { HeliosLogger } from '../../util/logging/HeliosLogger';
 import { HeliosRoute } from '../HeliosRoute';
 import { Hyperion, HyperionConfig } from 'asteria-hyperion';
-import { ErrorUtil } from 'asteria-gaia';
+import { ErrorUtil, AsteriaException } from 'asteria-gaia';
 import { HeliosContext } from '../../core/HeliosContext';
 import { SpiContext } from '../../spi/SpiContext';
 import { HeliosServiceName } from '../../core/HeliosServiceName';
 import { HeliosRouterLogUtils } from '../../util/route/HeliosRouterLogUtils';
 import { RuokConfigurator } from '../configurator/RuokConfigurator';
 import { TemplatesConfigurator } from '../configurator/TemplatesConfigurator';
+import { JobsConfigurator } from '../configurator/JobsConfigurator';
 
 /**
  * The default implementation of the <code>HeliosRouter</code> interface.
@@ -22,12 +23,17 @@ export class HeliosRouterImpl implements HeliosRouter {
     private readonly ROUTER: express.Router = express.Router();
 
     /**
+     * The internal reference to the <code>HeliosContext</code> object.
+     */
+    private readonly CONTEXT: HeliosContext = null;
+
+    /**
      * Create a new <code>HeliosRouterImpl</code> instance.
      * 
      * @param {HeliosContext} context the context associated with this router.
      */
     constructor(context: HeliosContext) {
-        this.initRoutes(context);
+        this.CONTEXT = context;
     }
 
     /**
@@ -38,17 +44,16 @@ export class HeliosRouterImpl implements HeliosRouter {
     }
 
     /**
-     * Initialize the routes for this router.
-     * 
-     * @param {HeliosContext} context the context associated with this router.
+       * @inheritdoc
      */
-    private initRoutes(context: HeliosContext): void {
+    public lookupRoutes(callback: (err: AsteriaException)=> void): void {
         HeliosLogger.getLogger().info('initializing HTTP routes');
-        this.ruok(context);
-        this.process(context);
-        this.jobs(context);
-        this.templates(context);
+        this.ruok(this.CONTEXT);
+        this.process(this.CONTEXT);
+        this.jobs(this.CONTEXT);
+        this.templates(this.CONTEXT);
         HeliosLogger.getLogger().info('HTTP routes initialized');
+        callback(null);
     }
 
     private ruok(context: HeliosContext): void {
@@ -75,10 +80,7 @@ export class HeliosRouterImpl implements HeliosRouter {
     }
 
     private jobs(context: HeliosContext): void {
-        this.ROUTER.get(HeliosRoute.JOBS, (req: express.Request, res: express.Response) => {
-            HeliosRouterLogUtils.logRoute(req, 'GET /jobs');
-            res.send('List of registered processors');
-        });
+        new JobsConfigurator().createRoute(this, context);
     }
     
     private templates(context: HeliosContext): void {

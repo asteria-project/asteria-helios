@@ -7,19 +7,19 @@ import { HeliosRouterLogUtils } from '../../util/route/HeliosRouterLogUtils';
 import { AbstractHeliosRouteConfigurator } from './AbstractHeliosRouteConfigurator';
 
 /**
- * The <code>RuokConfigurator</code> class is the <code>HeliosRouteConfigurator</code> implementation to declare the
- * Helios <code>/ruok</code> route.
+ * The <code>JobsConfigurator</code> class is the <code>HeliosRouteConfigurator</code> implementation to declare the
+ * Helios <code>/jobs</code> route.
  */
-export class RuokConfigurator extends AbstractHeliosRouteConfigurator implements HeliosRouteConfigurator {
+export class JobsConfigurator extends AbstractHeliosRouteConfigurator implements HeliosRouteConfigurator {
 
     /**
      * @inheritdoc
      */
     public createRoute(router: HeliosRouter, context: HeliosContext): void {
-        router.getRouter().get(HeliosRoute.RUOK, (req: express.Request, res: express.Response) => {
-            HeliosRouterLogUtils.logRoute(req, 'GET /ruok');
-            res.send('I\'m still alive!');
+        router.getRouter().get(HeliosRoute.JOBS, (req: express.Request, res: express.Response) => {
+            HeliosRouterLogUtils.logRoute(req, 'GET /jobs');
+            res.send('List of registered processors');
         });
-       this.routeAdded('/ruok');
+       this.routeAdded('/jobs');
     }
 }
