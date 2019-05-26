@@ -1,5 +1,5 @@
 import { Registry } from '../Registry';
-import { AbstractAsteriaObject } from 'asteria-gaia';
+import { AbstractAsteriaObject, AsteriaException } from 'asteria-gaia';
 
 /**
  * The abstract class for all <code>Registry</code> implementations.
@@ -24,29 +24,29 @@ export abstract class AbstractRegistry<T> extends AbstractAsteriaObject implemen
     /**
      * @inheritdoc
      */
-    public abstract add(item: T): void;
+    public abstract add(item: T, callback: (err: AsteriaException)=> void): void;
     
     /**
      * @inheritdoc
      */
-    public abstract remove(item: T): void;
+    public abstract remove(item: T, callback: (err: AsteriaException)=> void): void;
 
     /**
      * @inheritdoc
      */
-    public abstract get(id: string): T;
+    public abstract get(id: string, callback: (err: AsteriaException, item: T)=> void): void;
 
     /**
      * @inheritdoc
      */
-    public getAll(): Array<T> {
-        return Array.from(this.MAP.values());
+    public getAll(callback: (err: AsteriaException, items: Array<T>)=> void): void {
+        callback(null, Array.from(this.MAP.values()));
     }
 
     /**
      * @inheritdoc
      */
-    public getIds(): Array<string> {
-        return Array.from(this.MAP.keys());
+    public getIds(callback: (err: AsteriaException, items: Array<string>)=> void): void {
+        callback(null, Array.from(this.MAP.keys()));
     }
 }

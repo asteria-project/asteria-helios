@@ -1,5 +1,5 @@
 import { SpiContext } from '../SpiContext';
-import { AbstractAsteriaObject } from 'asteria-gaia';
+import { AbstractAsteriaObject, AsteriaException } from 'asteria-gaia';
 import { ServiceContext } from '../service/ServiceContext';
 import { ServiceContextRegistryImpl } from './ServiceContextRegistryImpl';
 import { ServiceContextRegistry } from '../service/ServiceContextRegistry';
@@ -47,23 +47,41 @@ export class SpiContextImpl extends AbstractAsteriaObject implements SpiContext 
      */
     public addServiceContext(context: ServiceContext): void {
         HeliosLogger.getLogger().info(`adding service context: ${context.getClassName()}`);
-        this.SERVICE_CONTEXT_REGISTRY.add(context);
+        this.SERVICE_CONTEXT_REGISTRY.add(context, (err:AsteriaException)=> {
+            if (err) {
+                throw err;
+            }
+        });
     }
     
     /**
      * @inheritdoc
      */
-    public lookup(): void {
+    public lookup(callback: (err:AsteriaException)=> void): void {
         HeliosLogger.getLogger().info('initializing services');
-        this.SERVICE_CONTEXT_REGISTRY.getIds().forEach((id: string)=> {
-            const ctx: ServiceContext = this.SERVICE_CONTEXT_REGISTRY.get(id);
-            const factory: SpiServiceFactory = ctx.getFactory(this.CONFIG);
-            const service: any = factory.create();
-            const svcName: string = ctx.getName();
-            this.SERVICES.set(svcName, service);
-            HeliosLogger.getLogger().info(`service "${svcName}" started`);
+        this.SERVICE_CONTEXT_REGISTRY.getIds((err:AsteriaException, ids:Array<string>)=> {
+            if (err) {
+                callback(err);
+            }
+            let cursor: number = ids.length;
+            ids.forEach((id: string)=> {
+                this.SERVICE_CONTEXT_REGISTRY.get(id, (err: AsteriaException, ctx: ServiceContext)=> {
+                    if (err) {
+                        callback(err);
+                    }
+                    const factory: SpiServiceFactory = ctx.getFactory(this.CONFIG);
+                    const service: any = factory.create();
+                    const svcName: string = ctx.getName();
+                    this.SERVICES.set(svcName, service);
+                    cursor--;
+                    HeliosLogger.getLogger().info(`service "${svcName}" started`);
+                    if(cursor === 0) {
+                        HeliosLogger.getLogger().info('services initialized');
+                        callback(null);
+                    }
+                });
+            });
         });
-        HeliosLogger.getLogger().info('services initialized');
     }
 
     /**

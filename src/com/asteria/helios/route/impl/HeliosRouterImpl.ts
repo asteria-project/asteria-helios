@@ -3,7 +3,7 @@ import { HeliosRouter } from '../HeliosRouter';
 import { HeliosLogger } from '../../util/logging/HeliosLogger';
 import { HeliosRoute } from '../HeliosRoute';
 import { Hyperion, HyperionConfig } from 'asteria-hyperion';
-import { ErrorUtil } from 'asteria-gaia';
+import { ErrorUtil, AsteriaException } from 'asteria-gaia';
 import { HeliosContext } from '../../core/HeliosContext';
 import { SpiContext } from '../../spi/SpiContext';
 import { HeliosServiceName } from '../../core/HeliosServiceName';
@@ -95,19 +95,30 @@ export class HeliosRouterImpl implements HeliosRouter {
         this.ROUTER.get(HeliosRoute.TEMPLATES, (req: express.Request, res: express.Response) => {
             this.logRoute(req, 'GET /templates');
             const registry: TemplateRegistry = context.getSpiContext().getService(HeliosServiceName.TEMPLATE_REGISTRY);
-            const templates: Array<HeliosTemplate> = registry.getAll();
-            res.send(templates);
+            registry.getAll((err:AsteriaException,  templates: Array<HeliosTemplate>)=> {
+                if (err) {
+                    res.sendStatus(500);
+                } else {
+                    res.send(templates);
+                }
+            });
+            
         });
         this.ROUTER.get(HeliosRoute.TEMPLATE, (req: express.Request, res: express.Response) => {
             const id: string = req.params.id;
             this.logRoute(req, 'GET /templates/' + id);
             const registry: TemplateRegistry = context.getSpiContext().getService(HeliosServiceName.TEMPLATE_REGISTRY);
-            const template: HeliosTemplate = registry.get(id);
-            if (template) {
-                res.send(template);
-            } else {
-                res.sendStatus(404);
-            }
+            registry.get(id, (err:AsteriaException, template: HeliosTemplate)=> {
+                if (err) {
+                    res.sendStatus(500);
+                } else {
+                    if (template) {
+                        res.send(template);
+                    } else {
+                        res.sendStatus(404);
+                    }
+                }
+            });
         });
     }
 }

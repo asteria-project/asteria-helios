@@ -1,5 +1,5 @@
 
-import { AbstractAsteriaObject } from 'asteria-gaia';
+import { AbstractAsteriaObject, AsteriaException } from 'asteria-gaia';
 import { Helios } from '../Helios';
 import { HeliosLogger } from '../../util/logging/HeliosLogger';
 import { HeliosContext } from '../HeliosContext';
@@ -43,13 +43,18 @@ export class HeliosImpl extends AbstractAsteriaObject implements Helios {
     public start(): void {
         HeliosLogger.getLogger().info('starting server');
         const port: number = this.CONTEXT.getPort();
-        try {
-            this.CONTEXT.getSpiContext().lookup();
-            this.CONTEXT.getServer().listen(port);
-            HeliosLogger.getLogger().info(`listening conections on port ${port}`);
-        } catch (e) {
-            HeliosLogger.getLogger().fatal(`server start failed:\n${e}`);
-        }
-        HeliosLogger.getLogger().info('server is ready for data analytics');
+        this.CONTEXT.getSpiContext().lookup((err: AsteriaException)=> {
+            if (err) {
+                HeliosLogger.getLogger().fatal(`server initialization failed:\n${err}`);
+            } else {
+                try {
+                    this.CONTEXT.getServer().listen(port);
+                    HeliosLogger.getLogger().info(`listening conections on port ${port}`);
+                    HeliosLogger.getLogger().info('server is ready for data analytics');
+                } catch (e) {
+                    HeliosLogger.getLogger().fatal(`server start failed:\n${e}`);
+                }
+            }
+        });
     }
 }

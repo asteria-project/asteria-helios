@@ -14,10 +14,11 @@ export class FileLoader {
      */
     public loadFile(filePath: string, callback: Function): void {
         fs.readFile(filePath, (err: NodeJS.ErrnoException, data: Buffer)=> {
+            let error: AsteriaException = null;
             if (err) {
-                throw new AsteriaException(AsteriaErrorCode.FILE_READ_ERROR, err.message, err.stack)
-            }
-            callback(data);
+                error = new AsteriaException(AsteriaErrorCode.FILE_READ_ERROR, err.message, err.stack);
+            } 
+            callback(error, data);
         });
     }
     
@@ -32,7 +33,7 @@ export class FileLoader {
             const file: string = fs.readFileSync(filePath, 'utf8');
             callback(file);
         } catch (err) {
-            throw new AsteriaException(AsteriaErrorCode.FILE_READ_ERROR, err.message, err.stack)
+            throw new AsteriaException(AsteriaErrorCode.FILE_READ_ERROR, err.message, err.stack);
         }
     }
 }

@@ -5,11 +5,18 @@ import * as path from 'path';
 import { HeliosLogger } from '../../../../../util/logging/HeliosLogger';
 import { HeliosConfig } from '../../../../../core/HeliosConfig';
 import { TemplateRegistry } from '../../../../../service/data/TemplateRegistry';
+import { FileWriter } from '../../../../../util/io/FileWriter';
+import { AsteriaException } from 'asteria-gaia';
 
 /**
  * An implementation of the <code>TemplateRegistry</code> interface that stores templates in the file system.
  */
 export class FileTemplateRegistry extends AbstractRegistry<HeliosTemplate> implements TemplateRegistry {
+
+    /**
+     * The path to the templates file.
+     */
+    private readonly FILE_PATH: string = null;
 
     /**
      * Create a new <code>FileTemplateRegistry</code> instance.
@@ -18,6 +25,7 @@ export class FileTemplateRegistry extends AbstractRegistry<HeliosTemplate> imple
      */
     constructor(config: HeliosConfig) {
         super('com.asteria.helios.connector.template.impl::FileTemplateRegistry');
+        this.FILE_PATH = path.join(process.cwd(), 'server', 'data', 'templates.json');
         this.init(config);
     }
 
@@ -27,12 +35,10 @@ export class FileTemplateRegistry extends AbstractRegistry<HeliosTemplate> imple
     private init(config: HeliosConfig): void {
         HeliosLogger.getLogger().info('initializing template registry');
         const fileLoader: FileLoader = new FileLoader();
-        const filePath: string = path.join(process.cwd(), 'server', 'data', 'templates.json');
-        fileLoader.loadFileSync(filePath, (input: string)=> {
-            //console.log(data)
+        fileLoader.loadFileSync(this.FILE_PATH, (input: string)=> {
             const templates: Array<HeliosTemplate> = JSON.parse(input).data;
             templates.forEach((template: HeliosTemplate)=> {
-                this.add(template);
+                this.MAP.set(template.id, template);
             });
             HeliosLogger.getLogger().info('template registry initialization complete');
         });
@@ -41,21 +47,47 @@ export class FileTemplateRegistry extends AbstractRegistry<HeliosTemplate> imple
     /**
      * @inheritdoc
      */
-    public add(template: HeliosTemplate): void {
+    public add(template: HeliosTemplate, callback: (err: AsteriaException)=> void): void {
         this.MAP.set(template.id, template);
+        this.writeData(callback);
     }
     
     /**
      * @inheritdoc
      */
-    public remove(template: HeliosTemplate): void {
+    public remove(template: HeliosTemplate, callback: (err: AsteriaException)=> void): void {
         this.MAP.delete(template.id);
+        this.writeData(callback);
     }
 
     /**
      * @inheritdoc
      */
-    public get(id: string): HeliosTemplate {
-        return this.MAP.get(id);
+    public get(id: string, callback: (err: AsteriaException, template: HeliosTemplate)=> void): void {
+        callback(null, this.MAP.get(id));
+    }
+
+    /**
+     * Persist data into the "templates" file.
+     * 
+     * @param {(err: AsteriaException)=>void} callback the callback finction invoked at the end of the writing process.
+     */
+    private writeData(callback: (err: AsteriaException)=>void): void {
+        const fileWriter: FileWriter = new FileWriter();
+        const data: string = this.getOutputData();
+        fileWriter.writeFile(this.FILE_PATH, data, (err: AsteriaException)=> {
+            callback(err);
+        });
+    }
+
+    /**
+     * Return the data to write into the "templates" file.
+     * 
+     * @returns {string} the data to write into the "templates" file.
+     */
+    private getOutputData(): string {
+        const templates: Array<HeliosTemplate> = Array.from(this.MAP.values());
+        const data: any = { data: templates };
+        return JSON.stringify(data);
     }
 }
