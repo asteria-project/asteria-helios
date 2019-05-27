@@ -46,6 +46,12 @@ export class HeliosContextImpl extends AbstractAsteriaObject implements HeliosCo
     private readonly PATH: string = null;
 
     /**
+     * Indicates whether the server started in development  in "development mode" (<code>true</code>), or in
+     * "production mode" (<code>true</code>).
+     */
+    private readonly IS_DEV_MODE: boolean = false;
+
+    /**
      * Create a new <code>HeliosContextImpl</code> instance.
      * 
      * @param {HeliosConfig} config the configuration for this server instance.
@@ -55,7 +61,8 @@ export class HeliosContextImpl extends AbstractAsteriaObject implements HeliosCo
     constructor(config: HeliosConfig, isDevMode: boolean = false) {
         super('com.asteria.helios.core.impl::HeliosContextImpl');
         HeliosLogger.getLogger().info('initializing server context');
-        if (isDevMode) {
+        this.IS_DEV_MODE = isDevMode;
+        if (this.IS_DEV_MODE) {
             HeliosLogger.getLogger().warn('server is running in development mode');
         }
         this.GUID = Uuid.v4();
@@ -70,15 +77,22 @@ export class HeliosContextImpl extends AbstractAsteriaObject implements HeliosCo
     /**
      * @inheritdoc
      */
-    public getServer(): HeliosServer {
-        return this.SERVER;
+    public getId(): string {
+        return this.GUID;
     }
 
     /**
      * @inheritdoc
      */
-    public getId(): string {
-        return this.GUID;
+    public isDevMode(): boolean {
+        return this.IS_DEV_MODE;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public getServer(): HeliosServer {
+        return this.SERVER;
     }
 
     /**

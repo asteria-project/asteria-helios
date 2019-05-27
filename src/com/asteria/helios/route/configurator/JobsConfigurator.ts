@@ -13,6 +13,13 @@ import { AbstractHeliosRouteConfigurator } from './AbstractHeliosRouteConfigurat
 export class JobsConfigurator extends AbstractHeliosRouteConfigurator implements HeliosRouteConfigurator {
 
     /**
+     * Create a new <code>JobsConfigurator</code> instance.
+     */
+    constructor() {
+        super('jobs');
+    }
+
+    /**
      * @inheritdoc
      */
     public createRoute(router: HeliosRouter, context: HeliosContext): void {
@@ -20,6 +27,6 @@ export class JobsConfigurator extends AbstractHeliosRouteConfigurator implements
             HeliosRouterLogUtils.logRoute(req, 'GET /jobs');
             res.send('List of registered processors');
         });
-       this.routeAdded('/jobs');
+       this.routeAdded(HeliosRoute.JOBS);
     }
 }

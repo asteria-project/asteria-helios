@@ -8,11 +8,16 @@ import { ProcessorRegistry } from '../../../../../service/data/ProcessorRegistry
 export class ProcessorRegistryIM extends AbstractRegistry<Hyperion> implements ProcessorRegistry {
 
     /**
-     * Create a new <code>ProcessorRegistry</code> instance.
+     * Create a new <code>ProcessorRegistryIM</code> instance.
      */
     constructor() {
-        super('com.asteria.helios.connector.processor.impl::ProcessorRegistry');
+        super('com.asteria.helios.connector.im.processor.impl::ProcessorRegistryIM');
     }
+
+    /**
+     * @inheritdoc
+     */
+    public start(): void {}
 
     /**
      * @inheritdoc

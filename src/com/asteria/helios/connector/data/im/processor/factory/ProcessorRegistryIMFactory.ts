@@ -16,7 +16,7 @@ export class ProcessorRegistryIMFactory extends AbstractAsteriaObject implements
      * @param {HeliosConfig} config the reference to the current server config.
      */
     constructor(config: HeliosConfig) {
-        super('com.asteria.helios.connector.processor.factory::ProcessorRegistryFactory');
+        super('com.asteria.helios.connector.im.processor.factory::ProcessorRegistryFactory');
     }
 
     /**

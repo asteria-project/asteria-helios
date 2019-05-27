@@ -1,13 +1,14 @@
 import { SpiContext } from '../SpiContext';
-import { AbstractAsteriaObject, AsteriaException } from 'asteria-gaia';
+import { AbstractAsteriaObject, AsteriaException, AsteriaErrorCode } from 'asteria-gaia';
 import { ServiceContext } from '../service/ServiceContext';
-import { ServiceContextRegistryImpl } from './ServiceContextRegistryImpl';
 import { ServiceContextRegistry } from '../service/ServiceContextRegistry';
 import { SpiServiceFactory } from '../factory/SpiServiceFactory';
 import { HeliosLogger } from '../../util/logging/HeliosLogger';
 import { HeliosConfig } from '../../core/HeliosConfig';
-import { ProcessorRegistryIMServiceContext } from '../../connector/data/file/processor/context/ProcessorRegistryIMServiceContext';
+import { ProcessorRegistryIMServiceContext } from '../../connector/data/im/processor/context/ProcessorRegistryIMServiceContext';
 import { FileTemplateRegistryServiceContext } from '../../connector/data/file/template/context/FileTemplateRegistryServiceContext';
+import { RouteConfigRegistryIMServiceContext } from '../../connector/data/im/route/context/RouteConfigRegistryIMServiceContext';
+import { HeliosService } from '../../service/HeliosService';
 
 /**
  * The <code>SpiContextImpl</code> class is the default implementation of the <code>SpiContext</code> interface.
@@ -18,11 +19,6 @@ export class SpiContextImpl extends AbstractAsteriaObject implements SpiContext 
      * The reference to the current server config.
      */
     private readonly CONFIG: HeliosConfig = null;
-
-    /**
-     * The service context registry for this SPI.
-     */
-    private readonly SERVICE_CONTEXT_REGISTRY: ServiceContextRegistry = null;
     
     /**
      * The list of services registred for this SPI.
@@ -37,8 +33,7 @@ export class SpiContextImpl extends AbstractAsteriaObject implements SpiContext 
     constructor(config: HeliosConfig) {
         super('com.asteria.helios.spi.core::SpiContextImpl');
         this.CONFIG = config;
-        this.SERVICE_CONTEXT_REGISTRY = this.createContext();
-        this.SERVICES = new Map<string, any>();
+        this.SERVICES = new Map<string, HeliosService>();
         this.initContext();
     }
 
@@ -47,41 +42,35 @@ export class SpiContextImpl extends AbstractAsteriaObject implements SpiContext 
      */
     public addServiceContext(context: ServiceContext): void {
         HeliosLogger.getLogger().info(`adding service context: ${context.getClassName()}`);
-        this.SERVICE_CONTEXT_REGISTRY.add(context, (err:AsteriaException)=> {
-            if (err) {
-                throw err;
-            }
-        });
+        const factory: SpiServiceFactory = context.getFactory(this.CONFIG);
+        const service: HeliosService = factory.create();
+        const svcName: string = context.getName();
+        this.SERVICES.set(svcName, service);
     }
     
     /**
      * @inheritdoc
      */
-    public lookup(callback: (err:AsteriaException)=> void): void {
+    public lookup(callback: (err: AsteriaException)=> void): void {
         HeliosLogger.getLogger().info('initializing services');
-        this.SERVICE_CONTEXT_REGISTRY.getIds((err:AsteriaException, ids:Array<string>)=> {
-            if (err) {
-                callback(err);
-            }
-            let cursor: number = ids.length;
-            ids.forEach((id: string)=> {
-                this.SERVICE_CONTEXT_REGISTRY.get(id, (err: AsteriaException, ctx: ServiceContext)=> {
-                    if (err) {
-                        callback(err);
-                    }
-                    const factory: SpiServiceFactory = ctx.getFactory(this.CONFIG);
-                    const service: any = factory.create();
-                    const svcName: string = ctx.getName();
-                    this.SERVICES.set(svcName, service);
-                    cursor--;
-                    HeliosLogger.getLogger().info(`service "${svcName}" started`);
-                    if(cursor === 0) {
-                        HeliosLogger.getLogger().info('services initialized');
-                        callback(null);
-                    }
-                });
+        try {
+            const serviceList: Array<string> = Array.from(this.SERVICES.keys());
+            serviceList.forEach((serviceName: string)=> {
+                const service: HeliosService = this.SERVICES.get(serviceName);
+                service.start();
+                HeliosLogger.getLogger().info(`service "${serviceName}" started`);
             });
-        });
+        } catch (e) {
+            const error: AsteriaException = new AsteriaException(
+                AsteriaErrorCode.INITIALIZATION_FAILURE,
+                'service initialization failed',
+                e.toString()
+            );
+            callback(error);
+        }
+        HeliosLogger.getLogger().info('services initialized');
+        callback(null);
+        
     }
 
     /**
@@ -90,21 +79,15 @@ export class SpiContextImpl extends AbstractAsteriaObject implements SpiContext 
     public getService(name: string): any {
         return this.SERVICES.get(name);
     }
-
-    /**
-     * Create and return the service context registry for this SPI.
-     * 
-     * @return {ServiceContextRegistry} the service context registry for this SPI.
-     */
-    private createContext(): ServiceContextRegistry {
-        return new ServiceContextRegistryImpl();
-    }
     
     /**
      * Initialize the service context registry for this SPI with the default Helios services.
      */
     private initContext(): void {
+        HeliosLogger.getLogger().info('registering default services');
+        this.addServiceContext(new RouteConfigRegistryIMServiceContext());
         this.addServiceContext(new ProcessorRegistryIMServiceContext());
         this.addServiceContext(new FileTemplateRegistryServiceContext());
+        HeliosLogger.getLogger().info('default services registered');
     }
 }

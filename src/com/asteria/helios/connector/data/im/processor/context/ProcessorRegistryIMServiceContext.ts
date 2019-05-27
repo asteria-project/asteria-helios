@@ -14,7 +14,7 @@ export class ProcessorRegistryIMServiceContext  extends AbstractAsteriaObject im
      * Create a new <code>ProcessorRegistryIMServiceContext</code> instance.
      */
     constructor() {
-        super('com.asteria.helios.connector.processor.context::ProcessorRegistryIMServiceContext');
+        super('com.asteria.helios.connector.im.processor.context::ProcessorRegistryIMServiceContext');
     }
 
     /**

@@ -21,7 +21,7 @@ export class FileTemplateRegistryFactory extends AbstractAsteriaObject implement
      * @param {HeliosConfig} config the reference to the current server config.
      */
     constructor(config: HeliosConfig) {
-        super('com.asteria.helios.connector.template.factory::FileTemplateRegistry');
+        super('com.asteria.helios.connector.file.template.factory::FileTemplateRegistryFactory');
         this.CONGIG = config;
     }
 

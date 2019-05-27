@@ -18,6 +18,12 @@ import { AbstractHeliosRouteConfigurator } from './AbstractHeliosRouteConfigurat
 export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator implements HeliosRouteConfigurator {
 
     /**
+     * Create a new <code>TemplatesConfigurator</code> instance.
+     */
+    constructor() {
+        super('templates');
+    }
+    /**
      * @inheritdoc
      */
     public createRoute(router: HeliosRouter, context: HeliosContext): void {
@@ -48,7 +54,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
                 }
             });
         });
-        expressRouter.get(HeliosRoute.TEMPLATE, (req: express.Request, res: express.Response) => {
+        expressRouter.get(HeliosRoute.TEMPLATES_ID, (req: express.Request, res: express.Response) => {
             const id: string = req.params.id;
             const templateRef: string = 'GET /templates/' + id;
             HeliosRouterLogUtils.logRoute(req, templateRef);
@@ -66,6 +72,6 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
                 }
             });
         });
-        this.routeAdded('/templates');
+        this.routeAdded(HeliosRoute.TEMPLATES);
     }
 }

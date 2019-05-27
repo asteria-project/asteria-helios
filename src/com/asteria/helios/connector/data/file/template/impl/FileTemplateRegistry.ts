@@ -14,6 +14,11 @@ import { AsteriaException } from 'asteria-gaia';
 export class FileTemplateRegistry extends AbstractRegistry<HeliosTemplate> implements TemplateRegistry {
 
     /**
+     * The reference to the Helios server config.
+     */
+    private readonly CONFIG: HeliosConfig = null;
+
+    /**
      * The path to the templates file.
      */
     private readonly FILE_PATH: string = null;
@@ -24,9 +29,16 @@ export class FileTemplateRegistry extends AbstractRegistry<HeliosTemplate> imple
      * @param {HeliosConfig} config the reference to the current server config.
      */
     constructor(config: HeliosConfig) {
-        super('com.asteria.helios.connector.template.impl::FileTemplateRegistry');
+        super('com.asteria.helios.connector.file.template.impl::FileTemplateRegistry');
         this.FILE_PATH = path.join(process.cwd(), 'server', 'data', 'templates.json');
-        this.init(config);
+        this.CONFIG = config;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public start(): void {
+        this.init(this.CONFIG);
     }
 
     /**

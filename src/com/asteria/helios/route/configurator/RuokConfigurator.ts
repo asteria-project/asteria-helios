@@ -13,6 +13,13 @@ import { AbstractHeliosRouteConfigurator } from './AbstractHeliosRouteConfigurat
 export class RuokConfigurator extends AbstractHeliosRouteConfigurator implements HeliosRouteConfigurator {
 
     /**
+     * Create a new <code>RuokConfigurator</code> instance.
+     */
+    constructor() {
+        super('ruok');
+    }
+
+    /**
      * @inheritdoc
      */
     public createRoute(router: HeliosRouter, context: HeliosContext): void {
@@ -20,6 +27,6 @@ export class RuokConfigurator extends AbstractHeliosRouteConfigurator implements
             HeliosRouterLogUtils.logRoute(req, 'GET /ruok');
             res.send('I\'m still alive!');
         });
-       this.routeAdded('/ruok');
+       this.routeAdded(HeliosRoute.RUOK);
     }
 }

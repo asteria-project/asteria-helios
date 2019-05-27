@@ -9,10 +9,10 @@ export interface SpiContext {
     /**
      * Initialize the context.
      * 
-     * @param {(err:AsteriaException)=> void} callback the callback method invoked until the context has been
+     * @param {(err:AsteriaException)=> void} callback the callback method invoked after the context has been
      *                                                 initialized.
      */
-    lookup(callback: (err:AsteriaException)=> void): void;
+    lookup(callback: (err: AsteriaException)=> void): void;
 
     /**
      * Add the specified service context to the SPI.

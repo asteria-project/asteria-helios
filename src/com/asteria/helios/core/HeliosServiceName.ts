@@ -11,5 +11,10 @@ export enum HeliosServiceName {
     /**
      * The reference to access the <code>TemplateRegistry</code> service.
      */
-    TEMPLATE_REGISTRY = 'template-registry'
+    TEMPLATE_REGISTRY = 'template-registry',
+
+    /**
+     * The reference to access the <code>RouteConfigRegistry</code> service.
+     */
+    ROUTE_CONFIG_REGISTRY = 'route-config-registry'
 }

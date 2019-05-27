@@ -28,6 +28,17 @@ export interface HeliosContext {
     getPort(): number;
 
     /**
+
+    /**
+     * Return a boolean value that indicates whether the server started in development in "development mode" 
+     * (<code>true</code>), or in "production mode" (<code>true</code>).
+     * 
+     * @returns {boolean} <code>true</code> whether the server started in development in "development mode";
+     *                    <code>true</code> otherwise.
+     */
+    isDevMode(): boolean;
+
+    /**
      * Return the Helios application path.
      * 
      * @returns {string} the Helios application path.

@@ -1,33 +1,33 @@
 import { ServiceContext } from '../../../../../spi/service/ServiceContext';
 import { SpiServiceFactory } from '../../../../../spi/factory/SpiServiceFactory';
-import { FileTemplateRegistryFactory } from '../factory/FileTemplateRegistryFactory';
 import { AbstractAsteriaObject } from 'asteria-gaia';
 import { HeliosServiceName } from '../../../../../core/HeliosServiceName';
 import { HeliosConfig } from '../../../../../core/HeliosConfig';
+import { RouteConfigRegistryIMFactory } from '../factory/RouteConfigRegistryIMFactory';
 
 /**
- * The default service context for creating Helios template registries.
+ * The default service context for creating Helios route registries.
  */
-export class FileTemplateRegistryServiceContext extends AbstractAsteriaObject implements ServiceContext {
+export class RouteConfigRegistryIMServiceContext  extends AbstractAsteriaObject implements ServiceContext {
 
     /**
-     * Create a new <code>FileTemplateRegistryServiceContext</code> instance.
+     * Create a new <code>RouteConfigRegistryIMServiceContext</code> instance.
      */
     constructor() {
-        super('com.asteria.helios.connector.file.template.context::FileTemplateRegistryServiceContext');
+        super('com.asteria.helios.connector.im.route.context::RouteConfigRegistryIMServiceContext');
     }
-    
+
     /**
      * @inheritdoc
      */
     public getName(): HeliosServiceName {
-        return HeliosServiceName.TEMPLATE_REGISTRY;
+        return HeliosServiceName.ROUTE_CONFIG_REGISTRY;
     }
     
     /**
      * @inheritdoc
      */
     public getFactory(config: HeliosConfig): SpiServiceFactory {
-        return new FileTemplateRegistryFactory(config);
+        return new RouteConfigRegistryIMFactory(config);
     }
 }

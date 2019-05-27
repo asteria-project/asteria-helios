@@ -10,9 +10,30 @@ import { HeliosLogger } from '../../util/logging/HeliosLogger';
 export abstract class AbstractHeliosRouteConfigurator implements HeliosRouteConfigurator {
 
     /**
+     * The identifier of this route configurator object.
+     */
+    private readonly ID: string = null;
+
+    /**
+     * Create a new <code>AbstractHeliosRouteConfigurator</code> instance.
+     * 
+     * @returns {string} the identifier of this route configurator object.
+     */
+    protected constructor(id: string) {
+        this.ID = id;
+    }
+
+    /**
      * @inheritdoc
      */
     abstract createRoute(router: HeliosRouter, context: HeliosContext): void;
+
+    /**
+     * @inheritdoc
+     */
+    public getId(): string {
+        return this.ID;
+    }
 
     /**
      * The <code>routeAdded</code> have to be invoked each time a route is added to the Helios server.

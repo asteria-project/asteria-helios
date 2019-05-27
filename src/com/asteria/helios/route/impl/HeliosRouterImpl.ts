@@ -8,9 +8,7 @@ import { HeliosContext } from '../../core/HeliosContext';
 import { SpiContext } from '../../spi/SpiContext';
 import { HeliosServiceName } from '../../core/HeliosServiceName';
 import { HeliosRouterLogUtils } from '../../util/route/HeliosRouterLogUtils';
-import { RuokConfigurator } from '../configurator/RuokConfigurator';
-import { TemplatesConfigurator } from '../configurator/TemplatesConfigurator';
-import { JobsConfigurator } from '../configurator/JobsConfigurator';
+import { HeliosRouteConfigurator } from '../HeliosRouteConfigurator';
 
 /**
  * The default implementation of the <code>HeliosRouter</code> interface.
@@ -48,16 +46,16 @@ export class HeliosRouterImpl implements HeliosRouter {
      */
     public lookupRoutes(callback: (err: AsteriaException)=> void): void {
         HeliosLogger.getLogger().info('initializing HTTP routes');
-        this.ruok(this.CONTEXT);
-        this.process(this.CONTEXT);
-        this.jobs(this.CONTEXT);
-        this.templates(this.CONTEXT);
-        HeliosLogger.getLogger().info('HTTP routes initialized');
-        callback(null);
-    }
-
-    private ruok(context: HeliosContext): void {
-        new RuokConfigurator().createRoute(this, context);
+        this.CONTEXT.getSpiContext()
+                    .getService(HeliosServiceName.ROUTE_CONFIG_REGISTRY)
+                    .getAll((err: AsteriaException, configList: Array<HeliosRouteConfigurator>)=> {
+                        configList.forEach((config: HeliosRouteConfigurator)=> {
+                            config.createRoute(this,  this.CONTEXT);
+                        });
+                        this.process(this.CONTEXT);
+                        HeliosLogger.getLogger().info('HTTP routes initialized');
+                        callback(err);
+                    });
     }
 
     private process(context: HeliosContext): void {
@@ -77,13 +75,5 @@ export class HeliosRouterImpl implements HeliosRouter {
                 res.sendStatus(ErrorUtil.resolveHttpCode(e));
             }
         });
-    }
-
-    private jobs(context: HeliosContext): void {
-        new JobsConfigurator().createRoute(this, context);
-    }
-    
-    private templates(context: HeliosContext): void {
-        new TemplatesConfigurator().createRoute(this, context);
     }
 }

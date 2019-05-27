@@ -14,4 +14,11 @@ export interface HeliosRouteConfigurator {
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     createRoute(router: HeliosRouter, context: HeliosContext): void;
+
+    /**
+     * Return the identifier of this route configurator object.
+     * 
+     * @returns {string} the identifier of this route configurator object.
+     */
+    getId(): string;
 }
