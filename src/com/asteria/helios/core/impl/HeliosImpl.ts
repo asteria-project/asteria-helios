@@ -41,6 +41,7 @@ export class HeliosImpl extends AbstractAsteriaObject implements Helios {
      * @inheritdoc
      */
     public start(): void {
+        const startTime: number = Date.now();
         HeliosLogger.getLogger().info('starting server');
         this.CONTEXT.getSpiContext().lookup((err: AsteriaException)=> {
             if (err) {
@@ -48,6 +49,7 @@ export class HeliosImpl extends AbstractAsteriaObject implements Helios {
             } else {
                 try {
                     this.CONTEXT.getServer().start();
+                    HeliosLogger.getLogger().info(`server started in ${Date.now() - startTime}ms`);
                     HeliosLogger.getLogger().info('server is ready for data analytics');
                 } catch (e) {
                     HeliosLogger.getLogger().fatal(`server start failed:\n${e}`);

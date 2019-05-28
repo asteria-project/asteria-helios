@@ -65,7 +65,36 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
                     res.sendStatus(500);
                 } else {
                     if (template) {
-                        res.send(template);
+                        res.status(201).send(template);
+                    } else {
+                        res.sendStatus(404);
+                    }
+                }
+            });
+        });
+        // TODO: code improvement
+        expressRouter.put(HeliosRoute.TEMPLATES_ID, (req: express.Request, res: express.Response) => {
+            const id: string = req.params.id;
+            const templateRef: string = 'GET /templates/' + id;
+            HeliosRouterLogUtils.logRoute(req, templateRef);
+            const updatedTemplate: HeliosTemplate = JSON.parse(req.body);
+            const registry: TemplateRegistry = context.getSpiContext().getService(HeliosServiceName.TEMPLATE_REGISTRY);
+            registry.get(id, (err: AsteriaException, template: HeliosTemplate)=> {
+                if (err) {
+                    HeliosRouterLogUtils.logRouteError(req, templateRef, err.toString());
+                    res.sendStatus(500);
+                } else {
+                    if (template) {
+                        template.description = updatedTemplate.description;
+                        template.processes = updatedTemplate.processes;
+                        registry.add(template, (err: AsteriaException)=>{
+                            if (err) {
+                                HeliosRouterLogUtils.logRouteError(req, templateRef, err.toString());
+                                res.sendStatus(500);
+                            } else {
+                                res.sendStatus(204);
+                            }
+                        });
                     } else {
                         res.sendStatus(404);
                     }

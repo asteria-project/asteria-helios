@@ -4,6 +4,7 @@ import { HeliosRouteConfigurator } from '../../../../../route/HeliosRouteConfigu
 import { RuokConfigurator } from '../../../../../route/configurator/RuokConfigurator';
 import { TemplatesConfigurator } from '../../../../../route/configurator/TemplatesConfigurator';
 import { JobsConfigurator } from '../../../../../route/configurator/JobsConfigurator';
+import { ProcessConfigurator } from '../../../../../route/configurator/ProcessConfigurator';
 
 /**
  * An "in-memory" implementation of the <code>RouteConfigRegistry</code> interface.
@@ -58,6 +59,9 @@ export class RouteConfigRegistryIM extends AbstractRegistry<HeliosRouteConfigura
         }
         if (!this.MAP.has('templates')) {
             this.add(new TemplatesConfigurator());
+        }
+        if (!this.MAP.has('process')) {
+            this.add(new ProcessConfigurator());
         }
     }
 }

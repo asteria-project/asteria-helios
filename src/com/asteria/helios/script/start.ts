@@ -6,7 +6,7 @@ import { HeliosRouter } from '../route/HeliosRouter';
 import { HeliosContext } from '../core/HeliosContext';
 import { HeliosServiceName } from '../core/HeliosServiceName';
 
-class HelloWorldRouteConfigurator extends AbstractHeliosRouteConfigurator implements HeliosRouteConfigurator {
+/*class HelloWorldRouteConfigurator extends AbstractHeliosRouteConfigurator implements HeliosRouteConfigurator {
 
 	constructor() {
       super('hello-world');
@@ -18,11 +18,11 @@ class HelloWorldRouteConfigurator extends AbstractHeliosRouteConfigurator implem
         });
        this.routeAdded('/hello-world');
     }
-}
+}*/
 
 const server: Helios = HeliosFactory.create();
-server.getContext()
+/*server.getContext()
       .getSpiContext()
       .getService(HeliosServiceName.ROUTE_CONFIG_REGISTRY)
-      .add(new HelloWorldRouteConfigurator());
+      .add(new HelloWorldRouteConfigurator());*/
 server.start();
