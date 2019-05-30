@@ -1,6 +1,6 @@
 {
   "name": "asteria-helios",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "description": "Helios is a Node.js application that provides full functionalities based upon the Asteria project APIs.",
   "types": "types/helios.d.ts",
   "scripts": {
@@ -14,10 +14,10 @@
   },
   "homepage": "https://github.com/asteria-helios/asteria-helios#readme",
   "dependencies": {
-    "asteria-eos": "^0.3.0",
-    "asteria-gaia": "^0.3.0",
-    "asteria-hyperion": "^0.3.0",
-    "asteria-ouranos": "^0.3.0",
+    "asteria-eos": "^0.4.0",
+    "asteria-gaia": "^0.4.0",
+    "asteria-hyperion": "^0.4.0",
+    "asteria-ouranos": "^0.4.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.16.4",
