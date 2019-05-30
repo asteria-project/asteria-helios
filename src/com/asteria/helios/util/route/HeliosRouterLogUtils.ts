@@ -1,5 +1,6 @@
 import express from 'express';
 import { HeliosLogger } from '../logging/HeliosLogger';
+import { CommonChar } from 'asteria-gaia';
 
 /**
  * The <code>HeliosRouterLogUtils</code> class provides static methods for logging Helios HTTP information.
@@ -13,7 +14,7 @@ export class HeliosRouterLogUtils {
      * @param {string} route the "METHOD / route" pari for which to print logs.
      */
     public static logRoute(req: express.Request, route: string, message?: string): void {
-        HeliosLogger.getLogger().info(`${req.hostname} ${route}`);
+        HeliosLogger.getLogger().info(`${req.hostname} ${route} ${message || CommonChar.EMPTY}`);
     }
 
     /**
