@@ -1,4 +1,4 @@
-import { RouteConfigRegistry } from '../../../../../service/data/RouteConfigRegistry';
+import { RouteConfigRegistry } from '../../../../../service/config/RouteConfigRegistry';
 import { HeliosRouteConfigurator } from '../../../../../route/HeliosRouteConfigurator';
 import { RuokConfigurator } from '../../../../../route/configurator/RuokConfigurator';
 import { TemplatesConfigurator } from '../../../../../route/configurator/TemplatesConfigurator';

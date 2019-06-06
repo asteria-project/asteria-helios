@@ -1,14 +1,14 @@
 import { SpiContext } from '../SpiContext';
 import { AbstractAsteriaObject, AsteriaException, AsteriaErrorCode } from 'asteria-gaia';
 import { ServiceContext } from '../service/ServiceContext';
-import { ServiceContextRegistry } from '../service/ServiceContextRegistry';
 import { SpiServiceFactory } from '../factory/SpiServiceFactory';
 import { HeliosLogger } from '../../util/logging/HeliosLogger';
 import { HeliosConfig } from '../../core/HeliosConfig';
+import { HeliosService } from '../../service/HeliosService';
 import { ProcessorRegistryIMServiceContext } from '../../connector/data/im/processor/context/ProcessorRegistryIMServiceContext';
 import { FileTemplateRegistryServiceContext } from '../../connector/data/file/template/context/FileTemplateRegistryServiceContext';
 import { RouteConfigRegistryIMServiceContext } from '../../connector/data/im/route/context/RouteConfigRegistryIMServiceContext';
-import { HeliosService } from '../../service/HeliosService';
+import { ModuleRegistryIMServiceContext } from '../../connector/data/im/module/context/ModuleRegistryIMServiceContext';
 
 /**
  * The <code>SpiContextImpl</code> class is the default implementation of the <code>SpiContext</code> interface.
@@ -88,6 +88,7 @@ export class SpiContextImpl extends AbstractAsteriaObject implements SpiContext 
         this.addServiceContext(new RouteConfigRegistryIMServiceContext());
         this.addServiceContext(new ProcessorRegistryIMServiceContext());
         this.addServiceContext(new FileTemplateRegistryServiceContext());
+        this.addServiceContext(new ModuleRegistryIMServiceContext());
         HeliosLogger.getLogger().info('default services registered');
     }
 }

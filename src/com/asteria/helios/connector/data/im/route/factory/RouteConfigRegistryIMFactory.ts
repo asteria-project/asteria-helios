@@ -2,7 +2,7 @@ import { RouteConfigRegistryIM } from '../impl/RouteConfigRegistryIM';
 import { AbstractAsteriaObject } from 'asteria-gaia';
 import { SpiServiceFactory } from '../../../../../spi/factory/SpiServiceFactory';
 import { HeliosConfig } from '../../../../../core/HeliosConfig';
-import { RouteConfigRegistry } from '../../../../../service/data/RouteConfigRegistry';
+import { RouteConfigRegistry } from '../../../../../service/config/RouteConfigRegistry';
 
 /**
  * The <code>RouteConfigRegistryIMFactory</code> class allows to create "in memory" <code>ProcessorRegistry</code> 

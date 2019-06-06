@@ -11,6 +11,7 @@ import { HyperionConfig, Hyperion } from 'asteria-hyperion';
 import { HeliosLogger } from '../../util/logging/HeliosLogger';
 import { SpiContext } from '../../spi/SpiContext';
 import { HeliosTemplate } from 'asteria-eos';
+import { ModuleRegistry } from '../../service/config/ModuleRegistry';
 
 /**
  * The <code>ProcessConfigurator</code> class is the <code>HeliosRouteConfigurator</code> implementation to work with 
@@ -76,6 +77,9 @@ export class ProcessConfigurator extends AbstractHeliosRouteConfigurator impleme
                         };
                         try {
                             const processor: Hyperion = Hyperion.build(config);
+                            const moduleService: ModuleRegistry = 
+                                spi.getService(HeliosServiceName.MODULE_REGISTRY) as ModuleRegistry;
+                            processor.setModuleRegistry(moduleService.getHyperionModuleRegistry());
                             spi.getService(HeliosServiceName.PROCESSOR_REGISTRY)
                                 .add(processor, (err: AsteriaException)=> {
                                     if (err) {
