@@ -5,7 +5,7 @@ import { HeliosRouter } from '../HeliosRouter';
 import { HeliosRoute } from '../HeliosRoute';
 import { HeliosRouterLogUtils } from '../../util/route/HeliosRouterLogUtils';
 import { TemplateRegistry } from '../../service/data/TemplateRegistry';
-import { AsteriaException } from 'asteria-gaia';
+import { AsteriaException, HttpStatusCode } from 'asteria-gaia';
 import { HeliosTemplate } from 'asteria-eos';
 import { HeliosTemplateBuilder } from '../../util/builder/HeliosTemplateBuilder';
 import { HeliosServiceName } from '../../core/HeliosServiceName';
@@ -34,7 +34,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
             registry.getAll((err:AsteriaException,  templates: Array<HeliosTemplate>)=> {
                 if (err) {
                     HeliosRouterLogUtils.logRouteError(req, 'GET /templates', err.toString());
-                    res.sendStatus(500);
+                    res.sendStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
                 } else {
                     res.send(templates);
                 }
@@ -48,7 +48,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
             registry.add(template, (err: AsteriaException)=> {
                 if (err) {
                     HeliosRouterLogUtils.logRouteError(req, 'POST /templates', err.toString());
-                    res.sendStatus(500);
+                    res.sendStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
                 } else {
                     res.send(template.id);
                 }
@@ -62,12 +62,12 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
             registry.get(id, (err: AsteriaException, template: HeliosTemplate)=> {
                 if (err) {
                     HeliosRouterLogUtils.logRouteError(req, templateRef, err.toString());
-                    res.sendStatus(500);
+                    res.sendStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
                 } else {
                     if (template) {
-                        res.status(201).send(template);
+                        res.status(HttpStatusCode.CREATED).send(template);
                     } else {
-                        res.sendStatus(404);
+                        res.sendStatus(HttpStatusCode.NOT_FOUND);
                     }
                 }
             });
@@ -90,13 +90,13 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
                         registry.add(template, (err: AsteriaException)=>{
                             if (err) {
                                 HeliosRouterLogUtils.logRouteError(req, templateRef, err.toString());
-                                res.sendStatus(500);
+                                res.sendStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
                             } else {
-                                res.sendStatus(204);
+                                res.sendStatus(HttpStatusCode.NO_CONTENT);
                             }
                         });
                     } else {
-                        res.sendStatus(404);
+                        res.sendStatus(HttpStatusCode.NOT_FOUND);
                     }
                 }
             });

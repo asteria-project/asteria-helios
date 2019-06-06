@@ -5,7 +5,6 @@ import * as bodyParser from 'body-parser';
 import { AbstractAsteriaObject, AsteriaException } from 'asteria-gaia';
 import { HeliosRouterImpl } from '../../route/impl/HeliosRouterImpl';
 import { HeliosRouter } from '../../route/HeliosRouter';
-import { HeliosConfig } from '../HeliosConfig';
 import { HeliosServer } from '../HeliosServer';
 import { HeliosLogger } from '../../util/logging/HeliosLogger';
 import { HeliosContext } from '../HeliosContext';

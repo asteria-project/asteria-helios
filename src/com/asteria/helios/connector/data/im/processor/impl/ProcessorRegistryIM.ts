@@ -1,12 +1,11 @@
 import { Hyperion } from 'asteria-hyperion';
-import { AbstractRegistry } from '../../../../../core/impl/AbstractRegistry';
 import { ProcessorRegistry } from '../../../../../service/data/ProcessorRegistry';
-import { AsteriaException } from 'asteria-gaia';
+import { AsteriaException, AbstractAsteriaRegistryAsync } from 'asteria-gaia';
 
 /**
  * An "in-memory" implementation of the <code>ProcessorRegistry</code> interface.
  */
-export class ProcessorRegistryIM extends AbstractRegistry<Hyperion> implements ProcessorRegistry {
+export class ProcessorRegistryIM extends AbstractAsteriaRegistryAsync<Hyperion> implements ProcessorRegistry {
 
     /**
      * Create a new <code>ProcessorRegistryIM</code> instance.

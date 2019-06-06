@@ -1,4 +1,3 @@
-import { AbstractRegistry } from '../../../../../core/impl/AbstractRegistry';
 import { HeliosTemplate } from 'asteria-eos';
 import { FileLoader } from '../../../../../util/io/FileLoader';
 import * as path from 'path';
@@ -6,12 +5,12 @@ import { HeliosLogger } from '../../../../../util/logging/HeliosLogger';
 import { HeliosConfig } from '../../../../../core/HeliosConfig';
 import { TemplateRegistry } from '../../../../../service/data/TemplateRegistry';
 import { FileWriter } from '../../../../../util/io/FileWriter';
-import { AsteriaException } from 'asteria-gaia';
+import { AsteriaException, AbstractAsteriaRegistryAsync } from 'asteria-gaia';
 
 /**
  * An implementation of the <code>TemplateRegistry</code> interface that stores templates in the file system.
  */
-export class FileTemplateRegistry extends AbstractRegistry<HeliosTemplate> implements TemplateRegistry {
+export class FileTemplateRegistry extends AbstractAsteriaRegistryAsync<HeliosTemplate> implements TemplateRegistry {
 
     /**
      * The reference to the Helios server config.

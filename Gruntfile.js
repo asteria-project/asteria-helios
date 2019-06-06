@@ -1,12 +1,12 @@
 /*!
- * Asteria Japet Gruntfile.js
+ * Asteria Helios Gruntfile.js
  * Copyright(c) 2019 Pascal ECHEMANN
- * Apache 2.0 Licensed
+ * MIT Licensed
  * This is a part of the Asteria Project: <https://github.com/asteria-project>
  */
 
 /*
- * Provides tasks for building and testing the "asteria-japet" project.
+ * Provides tasks for building and testing the "asteria-helios" project.
  */
 module.exports = function(grunt) {
 
@@ -110,7 +110,7 @@ module.exports = function(grunt) {
         target: 'ES6',
         out: 'docs/api-reference',
         readme: 'README.md',
-        name: 'Asteria Japet Project',
+        name: 'Asteria Helios Project',
         includes: 'utils/doc-includes',
         excludeExternals: true,
         excludePrivate: true,
@@ -151,14 +151,14 @@ module.exports = function(grunt) {
    * JEC Commons Tasks:
    */
 
-  //--> Task: builds the "asteria-japet" project:
+  //--> Task: builds the "asteria-helios" project:
   grunt.registerTask('build', ['ts:build', 'copy:main',
                                'copy:initTypes', 'copy:buildTypesFile',
                                'clean:build']);
 
-  //--> Task: builds the "asteria-japet" API documentation:
+  //--> Task: builds the "asteria-helios" API documentation:
   grunt.registerTask('doc', ['typedoc']);
 
-  //--> Task: builds the "asteria-japet" API documentation:
+  //--> Task: builds the "asteria-helios" API documentation:
   grunt.registerTask('test', ['ts:test', 'mochaTest']);
 }

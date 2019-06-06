@@ -116,7 +116,7 @@ export class ProcessConfigurator extends AbstractHeliosRouteConfigurator impleme
         const ctx: AsteriaContext = processor.getContext();
         const type: string = add ? 'added to' : 'removed from';
         HeliosLogger.getLogger().info(
-            `hyperion processor ${type} registry: name=${ctx.getName()}, id=name=${ctx.getId()}`
+            `hyperion processor ${type} registry: name=${ctx.getName()}, id=${ctx.getId()}`
         );
     }
 

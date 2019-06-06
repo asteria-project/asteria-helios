@@ -1,16 +1,16 @@
-import { AbstractRegistry } from '../../../../../core/impl/AbstractRegistry';
 import { RouteConfigRegistry } from '../../../../../service/data/RouteConfigRegistry';
 import { HeliosRouteConfigurator } from '../../../../../route/HeliosRouteConfigurator';
 import { RuokConfigurator } from '../../../../../route/configurator/RuokConfigurator';
 import { TemplatesConfigurator } from '../../../../../route/configurator/TemplatesConfigurator';
 import { JobsConfigurator } from '../../../../../route/configurator/JobsConfigurator';
 import { ProcessConfigurator } from '../../../../../route/configurator/ProcessConfigurator';
-import { AsteriaException } from 'asteria-gaia';
+import { AsteriaException, AbstractAsteriaRegistryAsync } from 'asteria-gaia';
 
 /**
  * An "in-memory" implementation of the <code>RouteConfigRegistry</code> interface.
  */
-export class RouteConfigRegistryIM extends AbstractRegistry<HeliosRouteConfigurator> implements RouteConfigRegistry {
+export class RouteConfigRegistryIM extends AbstractAsteriaRegistryAsync<HeliosRouteConfigurator>
+                                   implements RouteConfigRegistry {
 
     /**
      * Create a new <code>RouteConfigRegistryIM</code> instance.
