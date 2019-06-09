@@ -70,7 +70,7 @@ export class HeliosContextImpl extends AbstractAsteriaObject implements HeliosCo
         this.PATH = config.path ? config.path : Root.DEFAULT_PATH;
         HeliosLogger.getLogger().info(`server created with ID: ${this.GUID}`);
         this.SERVER = new HeliosServerImpl(this);
-        this.WORKSPACE = path.join(__dirname, config.workspace);
+        this.WORKSPACE = path.join(process.cwd(), config.workspace);
         this.SPI_CONTEXT = this.initSpiContext(config);
     }
 

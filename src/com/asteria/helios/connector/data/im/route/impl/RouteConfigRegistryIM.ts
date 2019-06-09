@@ -18,7 +18,6 @@ export class RouteConfigRegistryIM extends AbstractAsteriaRegistryAsync<HeliosRo
      */
     constructor() {
         super('com.asteria.helios.connector.im.route.impl::RouteConfigRegistryIM');
-        
     }
 
     /**

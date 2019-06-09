@@ -12,6 +12,8 @@ export class HeliosTemplateBuilder {
      * POST method.
      * 
      * @param {HeliosTemplate} partialTemplate  the partial template sent through the body of an HTTP POST method.
+     * 
+     * @returns {HeliosTemplate} a new <code>HeliosTemplate</code> object.
      */
     public static buildFromBody(partialTemplate: HeliosTemplate): HeliosTemplate {
         const uuid: string = Uuid.v4();
