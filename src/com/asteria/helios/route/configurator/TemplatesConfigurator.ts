@@ -10,6 +10,7 @@ import { HeliosTemplate } from 'asteria-eos';
 import { HeliosTemplateBuilder } from '../../util/builder/HeliosTemplateBuilder';
 import { HeliosServiceName } from '../../core/HeliosServiceName';
 import { AbstractHeliosRouteConfigurator } from './AbstractHeliosRouteConfigurator';
+import { HeaderUtils } from '../../util/net/HeaderUtils';
 
 /**
  * The <code>TemplatesConfigurator</code> class is the <code>HeliosRouteConfigurator</code> implementation to declare 
@@ -23,6 +24,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
     constructor() {
         super('templates');
     }
+    
     /**
      * @inheritdoc
      */
@@ -50,7 +52,9 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
                     HeliosRouterLogUtils.logRouteError(req, 'POST /templates', err.toString());
                     res.sendStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
                 } else {
-                    res.send(template.id);
+                    const id: string = template.id;
+                    HeaderUtils.setLocation(context, res, `${HeliosRoute.TEMPLATES}/${id}`);
+                    res.status(HttpStatusCode.CREATED).send(id);
                 }
             });
         });
@@ -65,7 +69,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
                     res.sendStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
                 } else {
                     if (template) {
-                        res.status(HttpStatusCode.CREATED).send(template);
+                        res.send(template);
                     } else {
                         res.sendStatus(HttpStatusCode.NOT_FOUND);
                     }
@@ -75,7 +79,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
         // TODO: code improvement
         expressRouter.put(HeliosRoute.TEMPLATES_ID, (req: express.Request, res: express.Response) => {
             const id: string = req.params.id;
-            const templateRef: string = 'GET /templates/' + id;
+            const templateRef: string = 'PUT /templates/' + id;
             HeliosRouterLogUtils.logRoute(req, templateRef);
             const updatedTemplate: HeliosTemplate = JSON.parse(req.body);
             const registry: TemplateRegistry = context.getSpiContext().getService(HeliosServiceName.TEMPLATE_REGISTRY);
