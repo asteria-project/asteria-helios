@@ -8,6 +8,11 @@ import { CommonChar } from 'asteria-gaia';
 export class HeliosFileStatsBuilder {
 
     /**
+     * The reference to the <code>.</code> character.
+     */
+    private static readonly DOT: string = '.';
+
+    /**
      * Return a new <code>HeliosFileStats</code> object built from the specified parameters.
      * 
      * @param {string} fileName the name of the file for which to get stats.
@@ -18,8 +23,7 @@ export class HeliosFileStatsBuilder {
      */
     public static build(fileName: string, path: string, stats: fs.Stats): HeliosFileStats {
         const isFile: boolean = stats.isFile();
-        const id: number = fileName.lastIndexOf('.');//CommonChar.DOT
-        console.log(id)
+        const id: number = fileName.lastIndexOf(HeliosFileStatsBuilder.DOT);
         const result: HeliosFileStats = {
             path: path,
             name: fileName.substr(0, id),
