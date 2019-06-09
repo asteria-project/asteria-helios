@@ -1,10 +1,11 @@
+import { AsteriaException, AbstractAsteriaRegistryAsync } from 'asteria-gaia';
 import { RouteConfigRegistry } from '../../../../../service/config/RouteConfigRegistry';
 import { HeliosRouteConfigurator } from '../../../../../route/HeliosRouteConfigurator';
 import { RuokConfigurator } from '../../../../../route/configurator/RuokConfigurator';
 import { TemplatesConfigurator } from '../../../../../route/configurator/TemplatesConfigurator';
 import { JobsConfigurator } from '../../../../../route/configurator/JobsConfigurator';
 import { ProcessConfigurator } from '../../../../../route/configurator/ProcessConfigurator';
-import { AsteriaException, AbstractAsteriaRegistryAsync } from 'asteria-gaia';
+import { WorkspaceConfigurator } from '../../../../../route/configurator/WorkspaceConfigurator';
 
 /**
  * An "in-memory" implementation of the <code>RouteConfigRegistry</code> interface.
@@ -65,6 +66,9 @@ export class RouteConfigRegistryIM extends AbstractAsteriaRegistryAsync<HeliosRo
         }
         if (!this.MAP.has('process')) {
             this.add(new ProcessConfigurator(), (err: AsteriaException)=>{});
+        }
+        if (!this.MAP.has('workspace')) {
+            this.add(new WorkspaceConfigurator(), (err: AsteriaException)=>{});
         }
     }
 }
