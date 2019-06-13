@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import { HeliosFileStats } from 'asteria-eos';
-import { CommonChar } from 'asteria-gaia';
 
 /**
  * A static builder that provides methods for creating new <code>HeliosFileStats</code> objects.

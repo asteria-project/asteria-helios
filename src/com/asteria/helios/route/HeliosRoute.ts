@@ -41,5 +41,10 @@ export enum HeliosRoute {
     /**
      * Represent the route to list files and directories in the specified workspace path.
      */
-    WOKSPACE_CONTROLLER_LIST = '/workspace/controller/list/:path?'
+    WOKSPACE_CONTROLLER_LIST = '/workspace/controller/list/:path?',
+
+    /**
+     * Represent the route to preview file content in the specified workspace path.
+     */
+    WOKSPACE_CONTROLLER_PREVIEW = '/workspace/controller/preview/:path'
 }

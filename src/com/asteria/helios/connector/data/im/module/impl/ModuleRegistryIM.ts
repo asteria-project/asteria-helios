@@ -1,5 +1,5 @@
 import { AsteriaException, AbstractAsteriaRegistryAsync } from 'asteria-gaia';
-import { HyperionModule, HyperionModuleRegistry, HyperionModuleRegistryFactory } from 'asteria-hyperion';
+import { HyperionModule, HyperionModuleRegistry, HyperionModuleRegistryFactory, CsvPreviewModule } from 'asteria-hyperion';
 import { ModuleRegistry } from '../../../../../service/config/ModuleRegistry';
 
 /**
@@ -83,5 +83,6 @@ export class ModuleRegistryIM extends AbstractAsteriaRegistryAsync<HyperionModul
     private init(): void {
         const factory: HyperionModuleRegistryFactory = new HyperionModuleRegistryFactory();
         this._moduleRegistry = factory.create();
+        this._moduleRegistry.add(new CsvPreviewModule());
     }
 }

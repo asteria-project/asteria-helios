@@ -4,7 +4,7 @@ import { HeliosContext } from '../../core/HeliosContext';
 import { HeliosRouter } from '../HeliosRouter';
 import { HeliosRoute } from '../HeliosRoute';
 import { HeliosRouterLogUtils } from '../../util/route/HeliosRouterLogUtils';
-import { ErrorUtil, AsteriaException, AsteriaContext, AsteriaErrorCode, StreamEventType } from 'asteria-gaia';
+import { ErrorUtil, AsteriaException, AsteriaErrorCode, StreamEventType } from 'asteria-gaia';
 import { HeliosServiceName } from '../../core/HeliosServiceName';
 import { AbstractHeliosRouteConfigurator } from './AbstractHeliosRouteConfigurator';
 import { HyperionConfig, Hyperion } from 'asteria-hyperion';
@@ -12,6 +12,7 @@ import { HeliosLogger } from '../../util/logging/HeliosLogger';
 import { SpiContext } from '../../spi/SpiContext';
 import { HeliosTemplate } from 'asteria-eos';
 import { ModuleRegistry } from '../../service/config/ModuleRegistry';
+import { HeliosRouteUtils } from '../../util/route/HeliosRouteUtils';
 
 /**
  * The <code>ProcessConfigurator</code> class is the <code>HeliosRouteConfigurator</code> implementation to work with 
@@ -39,16 +40,16 @@ export class ProcessConfigurator extends AbstractHeliosRouteConfigurator impleme
                 spi.getService(HeliosServiceName.PROCESSOR_REGISTRY)
                    .add(processor, (err: AsteriaException)=> {
                         if (err) {
-                            this.closeOnError(res, err, AsteriaErrorCode.PROCESS_FAILURE);
+                            HeliosRouteUtils.closeOnError(res, err, AsteriaErrorCode.PROCESS_FAILURE);
                         } else {
-                            this.logProcessorRegistryInfo(processor, true);
+                            HeliosRouterLogUtils.logProcessorRegistryInfo(processor, true);
                             res.on(StreamEventType.FINISH, ()=> {
                                 spi.getService(HeliosServiceName.PROCESSOR_REGISTRY)
                                    .remove(processor, (err: AsteriaException)=> {
                                         if (err) {
                                             HeliosLogger.getLogger().error(err.toString());
                                         } else {
-                                            this.logProcessorRegistryInfo(processor, false);
+                                            HeliosRouterLogUtils.logProcessorRegistryInfo(processor, false);
                                         }
                                     });
                             });
@@ -69,7 +70,7 @@ export class ProcessConfigurator extends AbstractHeliosRouteConfigurator impleme
             spi.getService(HeliosServiceName.TEMPLATE_REGISTRY)
                .get(id, (err: AsteriaException, template: HeliosTemplate)=> {
                     if (err) {
-                        this.closeOnError(res, err, err.code);
+                        HeliosRouteUtils.closeOnError(res, err, err.code);
                     } else {
                         const config: HyperionConfig = {
                             name: template.name,
@@ -83,16 +84,16 @@ export class ProcessConfigurator extends AbstractHeliosRouteConfigurator impleme
                             spi.getService(HeliosServiceName.PROCESSOR_REGISTRY)
                                 .add(processor, (err: AsteriaException)=> {
                                     if (err) {
-                                        this.closeOnError(res, err, AsteriaErrorCode.PROCESS_FAILURE);
+                                        HeliosRouteUtils.closeOnError(res, err, AsteriaErrorCode.PROCESS_FAILURE);
                                     } else {
-                                        this.logProcessorRegistryInfo(processor, true);
+                                        HeliosRouterLogUtils.logProcessorRegistryInfo(processor, true);
                                         res.on(StreamEventType.FINISH, ()=> {
                                             spi.getService(HeliosServiceName.PROCESSOR_REGISTRY)
                                             .remove(processor, (err: AsteriaException)=> {
                                                 if (err) {
                                                     HeliosLogger.getLogger().error(err.toString());
                                                 } else {
-                                                    this.logProcessorRegistryInfo(processor, false);
+                                                    HeliosRouterLogUtils.logProcessorRegistryInfo(processor, false);
                                                 }
                                                 
                                             });
@@ -108,31 +109,5 @@ export class ProcessConfigurator extends AbstractHeliosRouteConfigurator impleme
                 });
         });
         this.routeAdded(HeliosRoute.PROCESS);
-    }
-
-    /**
-     * Log information when a processor is added to, or removed from, the processor registry.
-     * 
-     * @param {Hyperion} processor the reference to the processor registry.
-     * @param {boolean} add indicates whether the processor is add (<code>true</code>), or not (<code>false</code>).
-     */
-    private logProcessorRegistryInfo(processor: Hyperion, add: boolean): void {
-        const ctx: AsteriaContext = processor.getContext();
-        const type: string = add ? 'added to' : 'removed from';
-        HeliosLogger.getLogger().info(
-            `hyperion processor ${type} registry: name=${ctx.getName()}, id=${ctx.getId()}`
-        );
-    }
-
-    /**
-     * Closes the conection when an error occured out for an Asteria process.
-     * 
-     * @param {Response} res the reference to the HTTP response for  which to close connection.
-     * @param {any} error the error responsible for closing connection.
-     * @param {AsteriaErrorCode} code the code of the error responsible for closing connection.
-     */
-    private closeOnError(res: express.Response, error: any, code: AsteriaErrorCode): void {
-        HeliosLogger.getLogger().error(error.toString());
-        res.sendStatus(ErrorUtil.resolveHttpCode(code));
     }
 }
