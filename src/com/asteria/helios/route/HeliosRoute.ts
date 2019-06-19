@@ -16,7 +16,7 @@ export enum HeliosRoute {
     /**
      * Represent the route to access the Helios processor controller for the specified process identifier.
      */
-    PROCESS_ID = '/process/:id',
+    PROCESS_ID = '/process/controller/:id',
     
     /**
      * Represent the route to work with the list of registered jobs (Hyperion processor instances).
