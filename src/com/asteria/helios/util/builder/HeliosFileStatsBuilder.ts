@@ -28,7 +28,7 @@ export class HeliosFileStatsBuilder {
             name: fileName.substr(0, id),
             extention: undefined,
             size: stats.size,
-            birthtime: 0,
+            birthtime: stats.birthtime.getTime(),
             isFile: isFile,
             mode: stats.mode,
             updatetime: stats.mtimeMs
