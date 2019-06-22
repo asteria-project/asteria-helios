@@ -33,7 +33,7 @@ export class ProcessConfigurator extends AbstractHeliosRouteConfigurator impleme
     public createRoute(router: HeliosRouter, context: HeliosContext): void {
         router.getRouter().put(HeliosRoute.PROCESS, (req: express.Request, res: express.Response) => {
             const config: HyperionConfig = req.body;
-            HeliosRouterLogUtils.logRoute(req, 'PUT /process');
+            HeliosRouterLogUtils.logRoute(req, 'PUT /process/controller');
             try {
                 const processor: Hyperion = Hyperion.build(config);
                 const spi: SpiContext = context.getSpiContext();
@@ -64,7 +64,7 @@ export class ProcessConfigurator extends AbstractHeliosRouteConfigurator impleme
         });
         router.getRouter().post(HeliosRoute.PROCESS_ID, (req: express.Request, res: express.Response) => {
             const id: string = req.params.id;
-            const templateRef: string = 'POST /process/' + id;
+            const templateRef: string = 'POST /process/controller/' + id;
             HeliosRouterLogUtils.logRoute(req, templateRef);
             const spi: SpiContext = context.getSpiContext();
             spi.getService(HeliosServiceName.TEMPLATE_REGISTRY)

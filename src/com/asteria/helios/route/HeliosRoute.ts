@@ -11,7 +11,7 @@ export enum HeliosRoute {
     /**
      * Represent the route to access the Helios processor controller.
      */
-    PROCESS = '/process',
+    PROCESS = '/process/controller',
     
     /**
      * Represent the route to access the Helios processor controller for the specified process identifier.
@@ -36,7 +36,7 @@ export enum HeliosRoute {
     /**
      * Represent the route to work with the Helios workspace.
      */
-    WOKSPACE = '/workspace',
+    WOKSPACE = '/workspace/controller',
     
     /**
      * Represent the route to list files and directories in the specified workspace path.
