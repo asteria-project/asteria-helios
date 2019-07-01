@@ -6,7 +6,7 @@ import { HeliosDataBuilder } from '../../util/builder/HeliosDataBuilder';
 import { CsvPreviewDataStreamConfig } from '../../lang/file/CsvPreviewDataStreamConfig';
 
 /**
- * The <code>CsvPreviewDataStream</code> class is a transformation stream that builds a new.
+ * The <code>CsvPreviewDataStream</code> class is a transformation stream that create the content preview of a CSV file.
  */
 export class CsvPreviewDataStream extends CronosTransformStream implements AsteriaStream {
 

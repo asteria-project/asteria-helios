@@ -40,6 +40,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
     public createRoute(router: HeliosRouter, context: HeliosContext): void {
         this.createListRoute(router, context);
         this.createPreviewRoute(router, context);
+        this.createUploadFileRoute(router, context);
         this.routeAdded(HeliosRoute.WOKSPACE);
     }
 
@@ -64,6 +65,29 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                     res.send(result);
                 }
             });
+        });
+    }
+
+    /**
+     * Create the route for the <code>/workspace/controller/upload/</code> path.
+     * 
+     * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
+     * @param {HeliosContext} context the reference to the Helios server context.
+     */
+    private createUploadFileRoute(router: HeliosRouter, context: HeliosContext): void {
+        router.getRouter()
+              .post(HeliosRoute.WOKSPACE_CONTROLLER_UPLOAD, (req: express.Request, res: express.Response) => {
+            const pathParam: string = req.params.path || '';
+            const templateRef: string = 'GET /workspace/controller/upload/' + pathParam;
+            HeliosRouterLogUtils.logRoute(req, templateRef);
+            let data: string = '';
+            req.on('data', (chunk: any)=> {
+                data += chunk;
+            });
+            req.on('end', ()=> {
+                console.log(data);
+            });
+            res.end('done');
         });
     }
 
