@@ -1,6 +1,6 @@
-import express from 'express';
+import { Response } from 'express';
 import { HeliosLogger } from '../logging/HeliosLogger';
-import { CommonChar, AsteriaErrorCode, ErrorUtil } from 'asteria-gaia';
+import { AsteriaErrorCode, ErrorUtil } from 'asteria-gaia';
 
 /**
  * The <code>HeliosRouteUtils</code> class provides static methods for working with Helios HTTP calls.
@@ -14,7 +14,7 @@ export class HeliosRouteUtils {
      * @param {any} error the error responsible for closing connection.
      * @param {AsteriaErrorCode} code the code of the error responsible for closing connection.
      */
-    public static closeOnError(res: express.Response, error: any, code: AsteriaErrorCode): void {
+    public static closeOnError(res: Response, error: any, code: AsteriaErrorCode): void {
         HeliosLogger.getLogger().error(error.toString());
         res.sendStatus(ErrorUtil.resolveHttpCode(code));
     }

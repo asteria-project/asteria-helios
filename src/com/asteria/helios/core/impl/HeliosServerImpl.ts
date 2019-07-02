@@ -1,4 +1,5 @@
 import express from 'express';
+import { Express } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import * as bodyParser from 'body-parser';
@@ -17,7 +18,7 @@ export class HeliosServerImpl extends AbstractAsteriaObject implements HeliosSer
     /**
      * The internal reference to the <code>Express</code> app.
      */
-    private readonly SERVER: express.Express = null;
+    private readonly SERVER: Express = null;
     
     /**
      * The internal reference to the <code>HeliosRouter</code> object.

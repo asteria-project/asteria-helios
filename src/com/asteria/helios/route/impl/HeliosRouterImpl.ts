@@ -1,4 +1,4 @@
-import express from 'express';
+import { Router } from 'express';
 import { HeliosRouter } from '../HeliosRouter';
 import { HeliosLogger } from '../../util/logging/HeliosLogger';
 import { AsteriaException } from 'asteria-gaia';
@@ -14,7 +14,7 @@ export class HeliosRouterImpl implements HeliosRouter {
     /**
      * The reference to the express <code>Router</code> object for this <code>HeliosRouterImpl</code> instance.
      */
-    private readonly ROUTER: express.Router = express.Router();
+    private readonly ROUTER: Router = Router();
 
     /**
      * The internal reference to the <code>HeliosContext</code> object.
@@ -33,7 +33,7 @@ export class HeliosRouterImpl implements HeliosRouter {
     /**
      * @inheritdoc
      */
-    public getRouter(): express.Router {
+    public getRouter(): Router {
         return this.ROUTER;
     }
 

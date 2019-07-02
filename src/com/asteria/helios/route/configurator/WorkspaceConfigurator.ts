@@ -1,4 +1,4 @@
-import express from 'express';
+import { Request, Response } from 'express';
 import * as path from 'path';
 import * as fs from 'fs';
 import { HeliosRouteConfigurator } from '../HeliosRouteConfigurator';
@@ -20,6 +20,8 @@ import { HeliosDataBuilder } from '../../util/builder/HeliosDataBuilder';
 import { CsvPreviewDataStream } from '../../stream/data/CsvPreviewDataStream';
 import { CsvPreviewDataStreamBuilder } from '../../util/builder/CsvPreviewDataStreamBuilder';
 import { HeliosFileStatsBuilder } from '../../util/builder/HeliosFileStatsBuilder';
+import { FormDataUtils } from '../../util/net/FormDataUtils';
+import busboy from 'busboy';
 
 /**
  * The <code>WorkspaceConfigurator</code> class is the <code>HeliosRouteConfigurator</code> implementation to declare 
@@ -52,7 +54,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      */
     private createListRoute(router: HeliosRouter, context: HeliosContext): void {
         const fileWalker: FileWalker = new FileWalker(context);
-        router.getRouter().get(HeliosRoute.WOKSPACE_CONTROLLER_LIST, (req: express.Request, res: express.Response) => {
+        router.getRouter().get(HeliosRoute.WOKSPACE_CONTROLLER_LIST, (req: Request, res: Response) => {
             const pathParam: string = req.params.path || '';
             const templateRef: string = 'GET /workspace/controller/list/' + pathParam;
             HeliosRouterLogUtils.logRoute(req, templateRef);
@@ -76,18 +78,25 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      */
     private createUploadFileRoute(router: HeliosRouter, context: HeliosContext): void {
         router.getRouter()
-              .post(HeliosRoute.WOKSPACE_CONTROLLER_UPLOAD, (req: express.Request, res: express.Response) => {
+              .post(HeliosRoute.WOKSPACE_CONTROLLER_UPLOAD, (req: Request, res: Response) => {
             const pathParam: string = req.params.path || '';
             const templateRef: string = 'GET /workspace/controller/upload/' + pathParam;
             HeliosRouterLogUtils.logRoute(req, templateRef);
-            let data: string = '';
-            req.on('data', (chunk: any)=> {
-                data += chunk;
+            const formDataStream: busboy.Busboy = FormDataUtils.buildFormDataStream(req);
+            formDataStream.on('file', (fieldname: string, file: NodeJS.ReadableStream, filename: string, encoding: string, mimetype: string)=> {
+                console.log(fieldname)
+                file.on('data', (data)=> {
+                console.log('File [' + fieldname + '] got ' + data.length + ' bytes');
+                });
+                file.on('end', ()=> {
+                console.log('File [' + fieldname + '] Finished');
+                });
             });
-            req.on('end', ()=> {
-                console.log(data);
+            formDataStream.on('finish', ()=> {
+                console.log('onfinish')
+                res.end('done');
             });
-            res.end('done');
+            req.pipe(formDataStream);
         });
     }
 
@@ -98,7 +107,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     private createPreviewRoute(router: HeliosRouter, context: HeliosContext): void {
-        router.getRouter().get(HeliosRoute.WOKSPACE_CONTROLLER_PREVIEW, (req: express.Request, res: express.Response) => {
+        router.getRouter().get(HeliosRoute.WOKSPACE_CONTROLLER_PREVIEW, (req: Request, res: Response) => {
             const pathParam: string = req.params.path;
             const templateRef: string = 'GET /workspace/controller/preview/' + pathParam;
             HeliosRouterLogUtils.logRoute(req, templateRef);

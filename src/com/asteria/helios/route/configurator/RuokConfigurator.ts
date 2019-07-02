@@ -1,4 +1,4 @@
-import express from 'express';
+import { Request, Response } from 'express';
 import { HeliosRouteConfigurator } from '../HeliosRouteConfigurator';
 import { HeliosContext } from '../../core/HeliosContext';
 import { HeliosRouter } from '../HeliosRouter';
@@ -23,7 +23,7 @@ export class RuokConfigurator extends AbstractHeliosRouteConfigurator implements
      * @inheritdoc
      */
     public createRoute(router: HeliosRouter, context: HeliosContext): void {
-        router.getRouter().get(HeliosRoute.RUOK, (req: express.Request, res: express.Response) => {
+        router.getRouter().get(HeliosRoute.RUOK, (req: Request, res: Response) => {
             HeliosRouterLogUtils.logRoute(req, 'GET /ruok');
             res.send('I\'m still alive!');
         });

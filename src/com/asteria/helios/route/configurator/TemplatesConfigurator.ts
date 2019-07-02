@@ -1,4 +1,4 @@
-import express from 'express';
+import { Request, Response } from 'express';
 import { HeliosRouteConfigurator } from '../HeliosRouteConfigurator';
 import { HeliosContext } from '../../core/HeliosContext';
 import { HeliosRouter } from '../HeliosRouter';
@@ -43,7 +43,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     private createGetTemplatesRoute(router: HeliosRouter, context: HeliosContext): void {
-        router.getRouter().get(HeliosRoute.TEMPLATES, (req: express.Request, res: express.Response) => {
+        router.getRouter().get(HeliosRoute.TEMPLATES, (req: Request, res: Response) => {
             HeliosRouterLogUtils.logRoute(req, 'GET /templates');
             const registry: TemplateRegistry = context.getSpiContext().getService(HeliosServiceName.TEMPLATE_REGISTRY);
             registry.getAll((err:AsteriaException,  templates: Array<HeliosTemplate>)=> {
@@ -64,7 +64,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     private createGetTemplateRoute(router: HeliosRouter, context: HeliosContext): void {
-        router.getRouter().get(HeliosRoute.TEMPLATES_ID, (req: express.Request, res: express.Response) => {
+        router.getRouter().get(HeliosRoute.TEMPLATES_ID, (req: Request, res: Response) => {
             const id: string = req.params.id;
             const templateRef: string = 'GET /templates/' + id;
             HeliosRouterLogUtils.logRoute(req, templateRef);
@@ -91,7 +91,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     private createPostTemplateRoute(router: HeliosRouter, context: HeliosContext): void {
-        router.getRouter().post(HeliosRoute.TEMPLATES, (req: express.Request, res: express.Response) => {
+        router.getRouter().post(HeliosRoute.TEMPLATES, (req: Request, res: Response) => {
             HeliosRouterLogUtils.logRoute(req, 'POST /templates');
             const registry: TemplateRegistry = context.getSpiContext().getService(HeliosServiceName.TEMPLATE_REGISTRY);
             const template: HeliosTemplate = HeliosTemplateBuilder.buildFromBody(req.body);
@@ -117,7 +117,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
      */
     private createPutTemplateRoute(router: HeliosRouter, context: HeliosContext): void {
         // TODO: code improvement
-        router.getRouter().put(HeliosRoute.TEMPLATES_ID, (req: express.Request, res: express.Response) => {
+        router.getRouter().put(HeliosRoute.TEMPLATES_ID, (req: Request, res: Response) => {
             const id: string = req.params.id;
             const templateRef: string = 'PUT /templates/' + id;
             HeliosRouterLogUtils.logRoute(req, templateRef);

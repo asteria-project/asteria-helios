@@ -1,4 +1,4 @@
-import express from 'express';
+import { Request, Response } from 'express';
 import { HeliosRouteConfigurator } from '../HeliosRouteConfigurator';
 import { HeliosContext } from '../../core/HeliosContext';
 import { HeliosRouter } from '../HeliosRouter';
@@ -31,7 +31,7 @@ export class ProcessConfigurator extends AbstractHeliosRouteConfigurator impleme
      * @inheritdoc
      */
     public createRoute(router: HeliosRouter, context: HeliosContext): void {
-        router.getRouter().put(HeliosRoute.PROCESS, (req: express.Request, res: express.Response) => {
+        router.getRouter().put(HeliosRoute.PROCESS, (req: Request, res: Response) => {
             const config: HyperionConfig = req.body;
             HeliosRouterLogUtils.logRoute(req, 'PUT /process/controller');
             try {
@@ -62,7 +62,7 @@ export class ProcessConfigurator extends AbstractHeliosRouteConfigurator impleme
                 res.sendStatus(ErrorUtil.resolveHttpCode(e));
             }
         });
-        router.getRouter().post(HeliosRoute.PROCESS_ID, (req: express.Request, res: express.Response) => {
+        router.getRouter().post(HeliosRoute.PROCESS_ID, (req: Request, res: Response) => {
             const id: string = req.params.id;
             const templateRef: string = 'POST /process/controller/' + id;
             HeliosRouterLogUtils.logRoute(req, templateRef);

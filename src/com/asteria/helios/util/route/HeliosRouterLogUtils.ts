@@ -1,4 +1,4 @@
-import express from 'express';
+import { Request, Response } from 'express';
 import { HeliosLogger } from '../logging/HeliosLogger';
 import { CommonChar, AsteriaContext } from 'asteria-gaia';
 import { Hyperion } from 'asteria-hyperion';
@@ -14,7 +14,7 @@ export class HeliosRouterLogUtils {
      * @param {Request} req the Express request reference for which to print logs.
      * @param {string} route the "METHOD / route" pari for which to print logs.
      */
-    public static logRoute(req: express.Request, route: string, message?: string): void {
+    public static logRoute(req: Request, route: string, message?: string): void {
         HeliosLogger.getLogger().info(`${req.hostname} ${route} ${message || CommonChar.EMPTY}`);
     }
 
@@ -24,7 +24,7 @@ export class HeliosRouterLogUtils {
      * @param {Request} req the Express request reference for which to print logs.
      * @param {string} route the "METHOD / route" pari for which to print logs.
      */
-    public static logRouteError(req: express.Request, route: string, message?: string): void {
+    public static logRouteError(req: Request, route: string, message?: string): void {
         HeliosLogger.getLogger().error(`${req.hostname} ${route} error=[${message}]`);
     }
     

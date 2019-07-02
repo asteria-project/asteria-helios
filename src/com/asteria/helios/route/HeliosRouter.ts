@@ -1,4 +1,4 @@
-import express from 'express';
+import { Router } from 'express';
 import { AsteriaException } from 'asteria-gaia';
 
 /**
@@ -9,9 +9,9 @@ export interface HeliosRouter {
     /**
      * Return the router associated with this <code>HeliosRouter</code> object.
      * 
-     * @returns {express.Router} the router associated with this <code>HeliosRouter</code> object.
+     * @returns {Router} the router associated with this <code>HeliosRouter</code> object.
      */
-    getRouter(): express.Router;
+    getRouter(): Router;
 
     /**
      * Initialize the HTTP routes.
