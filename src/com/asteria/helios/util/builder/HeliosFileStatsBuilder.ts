@@ -25,7 +25,7 @@ export class HeliosFileStatsBuilder {
         const id: number = fileName.lastIndexOf(HeliosFileStatsBuilder.DOT);
         const result: HeliosFileStats = {
             path: path,
-            name: fileName.substr(0, id),
+            name: isFile ? fileName.substr(0, id) : fileName,
             extention: undefined,
             size: stats.size,
             birthtime: stats.birthtime.getTime(),

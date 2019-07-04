@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
-import * as path from 'path';
 import * as fs from 'fs';
+import * as path from 'path';
 import { HeliosRouteConfigurator } from '../HeliosRouteConfigurator';
 import { HeliosContext } from '../../core/HeliosContext';
 import { HeliosRouter } from '../HeliosRouter';
 import { HeliosRoute } from '../HeliosRoute';
 import { HeliosRouterLogUtils } from '../../util/route/HeliosRouterLogUtils';
 import { AbstractHeliosRouteConfigurator } from './AbstractHeliosRouteConfigurator';
-import { HttpStatusCode, AsteriaException, AsteriaErrorCode, ErrorUtil, StreamEventType, CommonChar } from 'asteria-gaia';
+import { HttpStatusCode, AsteriaException, AsteriaErrorCode, ErrorUtil, StreamEventType } from 'asteria-gaia';
 import { FileWalker } from '../../util/io/FileWalker';
 import { HeliosFileStats, HeliosData } from 'asteria-eos';
 import { HeliosLogger } from '../../util/logging/HeliosLogger';
@@ -21,14 +21,14 @@ import { CsvPreviewDataStream } from '../../stream/data/CsvPreviewDataStream';
 import { CsvPreviewDataStreamBuilder } from '../../util/builder/CsvPreviewDataStreamBuilder';
 import { HeliosFileStatsBuilder } from '../../util/builder/HeliosFileStatsBuilder';
 import { FormDataUtils } from '../../util/net/FormDataUtils';
-import busboy from 'busboy';
+import { WorkspacePathUtils } from '../../util/io/WorkspacePathUtils';
+import { DirUtils } from '../../util/io/DirUtils';
 
 /**
  * The <code>WorkspaceConfigurator</code> class is the <code>HeliosRouteConfigurator</code> implementation to declare 
  * the Helios <code>/workspace</code> route.
  */
 export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator implements HeliosRouteConfigurator {
-
     /**
      * Create a new <code>WorkspaceConfigurator</code> instance.
      */
@@ -53,12 +53,13 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     private createListRoute(router: HeliosRouter, context: HeliosContext): void {
-        const fileWalker: FileWalker = new FileWalker(context);
+        const fileWalker: FileWalker = new FileWalker();
         router.getRouter().get(HeliosRoute.WOKSPACE_CONTROLLER_LIST, (req: Request, res: Response) => {
-            const pathParam: string = req.params.path || '';
-            const templateRef: string = 'GET /workspace/controller/list/' + pathParam;
+            const pathParam: string = req.query.path || '';
+            const templateRef: string = 'GET /workspace/controller/list?path=' + pathParam;
+            const realPath: string = WorkspacePathUtils.getInstance(context).getRealPath(pathParam);
             HeliosRouterLogUtils.logRoute(req, templateRef);
-            fileWalker.readDir(pathParam, (error: AsteriaException, statsList: Array<HeliosFileStats>)=> {
+            fileWalker.readDir(realPath, (error: AsteriaException, statsList: Array<HeliosFileStats>)=> {
                 if (error) {
                     res.sendStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
                 } else {
@@ -79,24 +80,45 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
     private createUploadFileRoute(router: HeliosRouter, context: HeliosContext): void {
         router.getRouter()
               .post(HeliosRoute.WOKSPACE_CONTROLLER_UPLOAD, (req: Request, res: Response) => {
-            const pathParam: string = req.params.path || '';
-            const templateRef: string = 'GET /workspace/controller/upload/' + pathParam;
+            const pathParam: string = req.query.path || '';
+            const templateRef: string = 'GET /workspace/controller/upload?path=' + pathParam;
             HeliosRouterLogUtils.logRoute(req, templateRef);
-            const formDataStream: busboy.Busboy = FormDataUtils.buildFormDataStream(req);
-            formDataStream.on('file', (fieldname: string, file: NodeJS.ReadableStream, filename: string, encoding: string, mimetype: string)=> {
-                console.log(fieldname)
-                file.on('data', (data)=> {
-                console.log('File [' + fieldname + '] got ' + data.length + ' bytes');
+            try {
+                const formDataStream: busboy.Busboy = FormDataUtils.buildFormDataStream(req);
+                const realPath: string = WorkspacePathUtils.getInstance(context).getRealPath(pathParam);
+                formDataStream.on('file', (fieldname: string, file: NodeJS.ReadableStream, filename: string,
+                                           encoding: string, mimetype: string)=> {
+                    fs.exists(realPath, (exists: boolean)=> {
+                        if (!exists) {
+                            DirUtils.getInstance().mkdirp(realPath, null, (err: NodeJS.ErrnoException)=> {
+                                if (err) {
+                                    res.status(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                                    res.send(err.message);
+                                } else {
+                                    file.pipe(fs.createWriteStream(path.join(realPath, filename)));
+                                }
+                            })
+                        } else {
+                            file.pipe(fs.createWriteStream(path.join(realPath, filename)));
+                        }
+                    });
+                
                 });
-                file.on('end', ()=> {
-                console.log('File [' + fieldname + '] Finished');
+                formDataStream.on('finish', ()=> {
+                    res.writeHead(HttpStatusCode.OK, { 'Connection': 'close' });
+                    res.end('done');
                 });
-            });
-            formDataStream.on('finish', ()=> {
-                console.log('onfinish')
-                res.end('done');
-            });
-            req.pipe(formDataStream);
+                req.pipe(formDataStream);
+            } catch (e) {
+                const message: string = e.message;
+                if (message === 'Multipart: Boundary not found') {
+                    res.status(HttpStatusCode.NOT_ACCEPTABLE);
+                } else {
+                    console.log(e);
+                    res.status(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                }
+                res.send(message)
+            }
         });
     }
 
@@ -108,12 +130,12 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      */
     private createPreviewRoute(router: HeliosRouter, context: HeliosContext): void {
         router.getRouter().get(HeliosRoute.WOKSPACE_CONTROLLER_PREVIEW, (req: Request, res: Response) => {
-            const pathParam: string = req.params.path;
-            const templateRef: string = 'GET /workspace/controller/preview/' + pathParam;
+            const pathParam: string = req.query.path;
+            const templateRef: string = 'GET /workspace/controller/preview?path=' + pathParam;
             HeliosRouterLogUtils.logRoute(req, templateRef);
             try {
-                const fullPath: string = path.join(context.getWorkspace(), pathParam);
-                fs.stat(fullPath, (err: NodeJS.ErrnoException, stats: fs.Stats) => {
+                const realPath: string = WorkspacePathUtils.getInstance(context).getRealPath(pathParam);
+                fs.stat(realPath, (err: NodeJS.ErrnoException, stats: fs.Stats) => {
                     if (err) {
                         HeliosLogger.getLogger().error(err.toString());
                         res.sendStatus(HttpStatusCode.NOT_FOUND);
@@ -161,13 +183,13 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      */
     private getPreviewProcessor(context: HeliosContext, filePath: string): Hyperion {
         const spi: SpiContext = context.getSpiContext();
-        const fullPath: string = path.join(context.getWorkspace(), filePath);
+        const realPath: string = WorkspacePathUtils.getInstance(context).getRealPath(filePath);
         const config: HyperionConfig = {
             name: 'CsvFilePreview',
             processes: [
                 {
                     type: HyperionBaseProcessType.CSV_PREVIEW,
-                    config: fullPath
+                    config: realPath
                 }
             ]
         };

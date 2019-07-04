@@ -14,7 +14,14 @@ export class FormDataUtils {
      * @returns {Request} a new <code>Busboy</code> parser object.
      */
     public static buildFormDataStream(req: Request): busboy.Busboy {
-        const parser: busboy.Busboy = new busboy({ headers: req.headers });
+        const parser: busboy.Busboy = new busboy(
+            { 
+                headers: req.headers,
+                limits: {
+                    files: 1
+                }
+            }
+        );
         return parser;
     }
 }
