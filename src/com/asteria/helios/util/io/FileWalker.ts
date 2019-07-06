@@ -3,6 +3,8 @@ import * as path from 'path';
 import { AsteriaException, AsteriaErrorCode } from 'asteria-gaia';
 import { HeliosFileStats } from 'asteria-eos';
 import { HeliosFileStatsBuilder } from '../builder/HeliosFileStatsBuilder';
+import { WorkspacePathUtils } from './WorkspacePathUtils';
+import { HeliosContext } from '../../core/HeliosContext';
 
 /**
  * The <code>FileWalker</code> class allows to traverse and return the structure of a directory.
@@ -10,9 +12,18 @@ import { HeliosFileStatsBuilder } from '../builder/HeliosFileStatsBuilder';
 export class FileWalker {
 
     /**
-     * Create a new <code>FileWalker</code> instance.
+     * The reference to the context associated with the current server instance.
      */
-    constructor() {}
+    private readonly CONTEXT: HeliosContext = null;
+
+    /**
+     * Create a new <code>FileWalker</code> instance.
+     * 
+     * @param {HeliosContext} context the context associated with the current server instance.
+     */
+    constructor(context: HeliosContext) {
+        this.CONTEXT = context;
+    }
 
     /**
      * Traverse the structure of the spefied directory path and return its structure.
@@ -30,8 +41,9 @@ export class FileWalker {
                 );
                 callback(error, null);
             } else {
-                let cursor: number = files.length;
                 const result: HeliosFileStats[] = new Array<HeliosFileStats>();
+                const fixedPath: string = WorkspacePathUtils.getInstance(this.CONTEXT).maskRealPath(dirPath);
+                let cursor: number = files.length;
                 files.forEach((file: string) => {
                     let itemPath: string = path.join(dirPath, file);
                     fs.stat(itemPath, (err: NodeJS.ErrnoException, stats: fs.Stats) => {
@@ -43,7 +55,7 @@ export class FileWalker {
                             );
                             callback(error, null);
                         } else {
-                            const fileStats: HeliosFileStats = HeliosFileStatsBuilder.build(file, dirPath, stats);
+                            const fileStats: HeliosFileStats = HeliosFileStatsBuilder.build(file, fixedPath, stats);
                             result.push(fileStats);
                             cursor--;
                         }

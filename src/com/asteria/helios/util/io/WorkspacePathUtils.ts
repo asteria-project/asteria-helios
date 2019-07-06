@@ -47,4 +47,15 @@ export class WorkspacePathUtils {
     public getRealPath(dirPath: string): string {
         return path.join(this.WORKSPACE_PATH, path.normalize(dirPath));
     }
+
+    /**
+     * Return a path, built from the specified path, for which the real path is removed.
+     * 
+     * @param {string} pathToMask the path to mask.
+     * 
+     * @returns {string} a path for which the real path is removed.
+     */
+    public maskRealPath(pathToMask: string): string {
+        return path.normalize(pathToMask).substr(this.WORKSPACE_PATH.length);
+    }
 }

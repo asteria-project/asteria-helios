@@ -53,7 +53,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     private createListRoute(router: HeliosRouter, context: HeliosContext): void {
-        const fileWalker: FileWalker = new FileWalker();
+        const fileWalker: FileWalker = new FileWalker(context);
         router.getRouter().get(HeliosRoute.WOKSPACE_CONTROLLER_LIST, (req: Request, res: Response) => {
             const pathParam: string = req.query.path || '';
             const templateRef: string = 'GET /workspace/controller/list?path=' + pathParam;
