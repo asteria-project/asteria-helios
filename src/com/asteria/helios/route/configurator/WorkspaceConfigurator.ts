@@ -44,6 +44,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
         this.createPreviewRoute(router, context);
         this.createUploadFileRoute(router, context);
         this.createRemoveRoute(router, context);
+        this.createMkdirRoute(router, context);
         this.routeAdded(HeliosRoute.WOKSPACE);
     }
 
@@ -143,6 +144,39 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                     res.sendStatus(HttpStatusCode.OK);
                 }
             });
+        });
+    }
+
+    /**
+     * Create the route for the <code>/workspace/controller/mkdir</code> path.
+     * 
+     * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
+     * @param {HeliosContext} context the reference to the Helios server context.
+     */
+    private createMkdirRoute(router: HeliosRouter, context: HeliosContext): void {
+        router.getRouter().post(HeliosRoute.WOKSPACE_CONTROLLER_MKDIR, (req: Request, res: Response) => {
+            const pathParam: string = req.query.path;
+            const templateRef: string = 'GET /workspace/controller/mkdir?path=' + pathParam;
+            HeliosRouterLogUtils.logRoute(req, templateRef);
+            try {
+                const realPath: string = WorkspacePathUtils.getInstance(context).getRealPath(pathParam);
+                DirUtils.getInstance().mkdirp(realPath, null, (err: NodeJS.ErrnoException)=> {
+                    if (err) {
+                        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                        res.send(err.message);
+                    } else {
+                        res.sendStatus(HttpStatusCode.CREATED);
+                    }
+                });
+            } catch (e) {
+                HeliosLogger.getLogger().error(e.toString());
+                if (e instanceof TypeError) {
+                    res.status(HttpStatusCode.UNPROCESSABLE_ENTITY);
+                    res.send(e.message);
+                } else {
+                    res.sendStatus(ErrorUtil.resolveHttpCode(AsteriaErrorCode.PROCESS_FAILURE));
+                }
+            }
         });
     }
 

@@ -56,5 +56,10 @@ export enum HeliosRoute {
     /**
      * Represent the route to remove a file, or a directory, from the workspace.
      */
-    WOKSPACE_CONTROLLER_REMOVE = '/workspace/controller/remove'
+    WOKSPACE_CONTROLLER_REMOVE = '/workspace/controller/remove',
+    
+    /**
+     * Represent the route to create a new directory at the specified workspace path.
+     */
+    WOKSPACE_CONTROLLER_MKDIR = '/workspace/controller/mkdir'
 }
