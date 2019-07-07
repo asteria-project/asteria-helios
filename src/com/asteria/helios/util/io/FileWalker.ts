@@ -44,26 +44,30 @@ export class FileWalker {
                 const result: HeliosFileStats[] = new Array<HeliosFileStats>();
                 const fixedPath: string = WorkspacePathUtils.getInstance(this.CONTEXT).maskRealPath(dirPath);
                 let cursor: number = files.length;
-                files.forEach((file: string) => {
-                    let itemPath: string = path.join(dirPath, file);
-                    fs.stat(itemPath, (err: NodeJS.ErrnoException, stats: fs.Stats) => {
-                        if (err) {
-                            const error: AsteriaException = new AsteriaException(
-                                AsteriaErrorCode.FILE_READ_ERROR,
-                                `unable to read file "${itemPath}"`,
-                                err.toString()
-                            );
-                            callback(error, null);
-                        } else {
-                            const fileStats: HeliosFileStats = HeliosFileStatsBuilder.build(file, fixedPath, stats);
-                            result.push(fileStats);
-                            cursor--;
-                        }
-                        if (cursor === 0) {
-                            callback(null, result);
-                        }
+                if (cursor === 0) {
+                    callback(null, result);
+                } else {
+                    files.forEach((file: string) => {
+                        let itemPath: string = path.join(dirPath, file);
+                        fs.stat(itemPath, (err: NodeJS.ErrnoException, stats: fs.Stats) => {
+                            if (err) {
+                                const error: AsteriaException = new AsteriaException(
+                                    AsteriaErrorCode.FILE_READ_ERROR,
+                                    `unable to read file "${itemPath}"`,
+                                    err.toString()
+                                );
+                                callback(error, null);
+                            } else {
+                                const fileStats: HeliosFileStats = HeliosFileStatsBuilder.build(file, fixedPath, stats);
+                                result.push(fileStats);
+                                cursor--;
+                            }
+                            if (cursor === 0) {
+                                callback(null, result);
+                            }
+                        });
                     });
-                });
+                }
             }
         });
     };
