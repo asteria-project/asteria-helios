@@ -51,5 +51,10 @@ export enum HeliosRoute {
     /**
      * Represent the route to upload a file content in the specified workspace path.
      */
-    WOKSPACE_CONTROLLER_UPLOAD = '/workspace/controller/upload'
+    WOKSPACE_CONTROLLER_UPLOAD = '/workspace/controller/upload',
+
+    /**
+     * Represent the route to remove a file, or a directory, from the workspace.
+     */
+    WOKSPACE_CONTROLLER_REMOVE = '/workspace/controller/remove'
 }
