@@ -88,8 +88,10 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
             try {
                 const formDataStream: busboy.Busboy = FormDataUtils.buildFormDataStream(req);
                 const realPath: string = WorkspacePathUtils.getInstance(context).getRealPath(pathParam);
+                let filePath: fs.PathLike = null;
                 formDataStream.on('file', (fieldname: string, file: NodeJS.ReadableStream, filename: string,
                                            encoding: string, mimetype: string)=> {
+                    filePath = path.join(realPath, filename);
                     fs.exists(realPath, (exists: boolean)=> {
                         if (!exists) {
                             DirUtils.getInstance().mkdirp(realPath, null, (err: NodeJS.ErrnoException)=> {
@@ -97,18 +99,28 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                                     res.status(HttpStatusCode.INTERNAL_SERVER_ERROR);
                                     res.send(err.message);
                                 } else {
-                                    file.pipe(fs.createWriteStream(path.join(realPath, filename)));
+                                    file.pipe(fs.createWriteStream(filePath));
                                 }
                             })
                         } else {
-                            file.pipe(fs.createWriteStream(path.join(realPath, filename)));
+                            file.pipe(fs.createWriteStream(filePath));
                         }
                     });
                 
                 });
                 formDataStream.on('finish', ()=> {
-                    res.writeHead(HttpStatusCode.OK, { 'Connection': 'close' });
-                    res.end('done');
+                    fs.stat(filePath, (err: NodeJS.ErrnoException, stats: fs.Stats)=> {
+                        if (err) {
+                            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                            res.send(err.message);
+                        } else {
+                            res.writeHead(HttpStatusCode.OK, { 'Connection': 'close' });
+                            const heliosFile: HeliosFileStats = this.buildFileStats(pathParam, stats);
+                            const result: HeliosData<HeliosFileStats> = 
+                                HeliosDataBuilder.build<HeliosFileStats>(context.getId(), heliosFile);
+                            res.end(JSON.stringify(result));
+                        }
+                    });
                 });
                 req.pipe(formDataStream);
             } catch (e) {
@@ -119,7 +131,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                     console.log(e);
                     res.status(HttpStatusCode.INTERNAL_SERVER_ERROR);
                 }
-                res.send(message)
+                res.send(message);
             }
         });
     }
