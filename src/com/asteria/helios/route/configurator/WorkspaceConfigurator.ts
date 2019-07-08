@@ -109,18 +109,20 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                 
                 });
                 formDataStream.on('finish', ()=> {
-                    fs.stat(filePath, (err: NodeJS.ErrnoException, stats: fs.Stats)=> {
-                        if (err) {
-                            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR);
-                            res.send(err.message);
-                        } else {
-                            res.writeHead(HttpStatusCode.OK, { 'Connection': 'close' });
-                            const heliosFile: HeliosFileStats = this.buildFileStats(pathParam, stats);
-                            const result: HeliosData<HeliosFileStats> = 
-                                HeliosDataBuilder.build<HeliosFileStats>(context.getId(), heliosFile);
-                            res.end(JSON.stringify(result));
-                        }
-                    });
+                    setTimeout(()=> {
+                        fs.stat(filePath, (err: NodeJS.ErrnoException, stats: fs.Stats)=> {
+                            if (err) {
+                                res.status(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                                res.send(err.message);
+                            } else {
+                                res.writeHead(HttpStatusCode.OK, { 'Connection': 'close' });
+                                const heliosFile: HeliosFileStats = this.buildFileStats(pathParam, stats);
+                                const result: HeliosData<HeliosFileStats> = 
+                                    HeliosDataBuilder.build<HeliosFileStats>(context.getId(), heliosFile);
+                                res.end(JSON.stringify(result));
+                            }
+                        });
+                    }, 0);
                 });
                 req.pipe(formDataStream);
             } catch (e) {
