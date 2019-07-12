@@ -108,7 +108,6 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
         });
     }
 
-    
     /**
      * Create the route for the <code>/templates</code> path and the HTTP <code>PUT</code> method.
      * 

@@ -31,38 +31,17 @@ export class ProcessConfigurator extends AbstractHeliosRouteConfigurator impleme
      * @inheritdoc
      */
     public createRoute(router: HeliosRouter, context: HeliosContext): void {
-        router.getRouter().put(HeliosRoute.PROCESS, (req: Request, res: Response) => {
-            const config: HyperionConfig = req.body;
-            HeliosRouterLogUtils.logRoute(req, 'PUT /process/controller');
-            try {
-                const processor: Hyperion = Hyperion.build(config);
-                const spi: SpiContext = context.getSpiContext();
-                spi.getService(HeliosServiceName.PROCESSOR_REGISTRY)
-                   .add(processor, (err: AsteriaException)=> {
-                        if (err) {
-                            HeliosRouteUtils.closeOnError(res, err, AsteriaErrorCode.PROCESS_FAILURE);
-                        } else {
-                            HeliosRouterLogUtils.logProcessorRegistryInfo(processor, true);
-                            res.on(StreamEventType.FINISH, ()=> {
-                                spi.getService(HeliosServiceName.PROCESSOR_REGISTRY)
-                                   .remove(processor, (err: AsteriaException)=> {
-                                        if (err) {
-                                            HeliosLogger.getLogger().error(err.toString());
-                                        } else {
-                                            HeliosRouterLogUtils.logProcessorRegistryInfo(processor, false);
-                                        }
-                                    });
-                            });
-                            (processor.run() as any).pipe(res);
-                        }
-                   });
-                
-            } catch (e) {
-                HeliosLogger.getLogger().error(e.toString());
-                res.sendStatus(ErrorUtil.resolveHttpCode(e));
-            }
-        });
-        router.getRouter().post(HeliosRoute.PROCESS_ID, (req: Request, res: Response) => {
+        this.createRunRoute(router, context);
+    }
+    
+    /**
+     * Create the route for the <code>/process/controller/run</code> path.
+     * 
+     * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
+     * @param {HeliosContext} context the reference to the Helios server context.
+     */
+    private createRunRoute(router: HeliosRouter, context: HeliosContext): void {
+        router.getRouter().post(HeliosRoute.PROCESS_RUN, (req: Request, res: Response) => {
             const id: string = req.params.id;
             const templateRef: string = 'POST /process/controller/' + id;
             HeliosRouterLogUtils.logRoute(req, templateRef);
