@@ -108,7 +108,6 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                             file.pipe(fs.createWriteStream(filePath));
                         }
                     });
-                
                 });
                 formDataStream.on('finish', ()=> {
                     setTimeout(()=> {
@@ -178,9 +177,11 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
             fs.exists(realPath, (exists: boolean)=> {
                 if (exists) {
                     res.status(HttpStatusCode.OK)
-                        .sendFile(realPath, null, (err: Error)=> {
-                            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR);
-                            res.send(err.message);
+                        .download(realPath, 'test.txt', (err: Error)=> {
+                            if (err) {
+                                res.status(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                                res.send(err.message);
+                            }
                         });
                 } else {
                     res.sendStatus(HttpStatusCode.NOT_FOUND);
@@ -202,12 +203,20 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
             HeliosRouterLogUtils.logRoute(req, templateRef);
             try {
                 const realPath: string = WorkspacePathUtils.getInstance(context).getRealPath(pathParam);
-                DirUtils.getInstance().mkdirp(realPath, null, (err: NodeJS.ErrnoException)=> {
-                    if (err) {
-                        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR);
-                        res.send(err.message);
+
+                fs.exists(realPath, (exists: boolean)=> {
+                    if (!exists) {
+                        DirUtils.getInstance().mkdirp(realPath, null, (err: NodeJS.ErrnoException)=> {
+                            if (err) {
+                                res.status(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                                res.send(err.message);
+                            } else {
+                                res.sendStatus(HttpStatusCode.CREATED);
+                            }
+                        });
                     } else {
-                        res.sendStatus(HttpStatusCode.CREATED);
+                        res.status(HttpStatusCode.CONFLICT);
+                        res.send('An important resource with the same name already exists.');
                     }
                 });
             } catch (e) {
