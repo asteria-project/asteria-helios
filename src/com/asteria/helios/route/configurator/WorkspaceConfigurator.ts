@@ -102,10 +102,12 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                 const formDataStream: busboy.Busboy = FormDataUtils.buildFormDataStream(req);
                 const realPath: string = WorkspacePathUtils.getInstance(context).getRealPath(pathParam);
                 let filePath: fs.PathLike = null;
+                let fileName: string = null;
                 formDataStream.on(BusboyEventType.FILE,
                                   (fieldname: string, file: NodeJS.ReadableStream, filename: string, encoding: string,
                                    mimetype: string)=> {
                     filePath = path.join(realPath, filename);
+                    fileName = filename;
                     fs.exists(realPath, (exists: boolean)=> {
                         if (!exists) {
                             DirUtils.getInstance().mkdirp(realPath, null, (err: NodeJS.ErrnoException)=> {
@@ -131,7 +133,8 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                                 );
                             } else {
                                 res.writeHead(HttpStatusCode.OK, CONNECTION_CLOSE);
-                                const heliosFile: HeliosFileStats = this.buildFileStats(pathParam, stats);
+                                const heliosFile: HeliosFileStats = 
+                                    this.buildFileStats(path.join(pathParam, fileName), stats);
                                 const result: HeliosData<HeliosFileStats> = 
                                     HeliosDataBuilder.build<HeliosFileStats>(context.getId(), heliosFile);
                                 res.end(JSON.stringify(result));
