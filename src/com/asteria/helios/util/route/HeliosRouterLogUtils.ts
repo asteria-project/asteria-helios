@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { HeliosLogger } from '../logging/HeliosLogger';
-import { CommonChar, AsteriaContext } from 'asteria-gaia';
+import { CommonChar, AsteriaContext, HttpStatusCode } from 'asteria-gaia';
 import { Hyperion } from 'asteria-hyperion';
 
 /**
@@ -12,7 +12,7 @@ export class HeliosRouterLogUtils {
      * Print logs for the specified Request.
      * 
      * @param {Request} req the Express request reference for which to print logs.
-     * @param {string} route the "METHOD / route" pari for which to print logs.
+     * @param {string} route the "METHOD / route" part for which to print logs.
      */
     public static logRoute(req: Request, route: string, message?: string): void {
         HeliosLogger.getLogger().info(`${req.hostname} ${route} ${message || CommonChar.EMPTY}`);
@@ -22,10 +22,26 @@ export class HeliosRouterLogUtils {
      * Print error logs for the specified Request.
      * 
      * @param {Request} req the Express request reference for which to print logs.
-     * @param {string} route the "METHOD / route" pari for which to print logs.
+     * @param {string} route the "METHOD / route" part for which to print logs.
      */
     public static logRouteError(req: Request, route: string, message?: string): void {
         HeliosLogger.getLogger().error(`${req.hostname} ${route} error=[${message}]`);
+    }
+    
+    /**
+     * Print error logs for the specified Request whether <code>status</code> is
+     * <code>HttpStatusCode.INTERNAL_SERVER_ERROR</code>.
+     * 
+     * @param {Request} req the Express request reference for which to print logs.
+     * @param {string} route the "METHOD / route" part for which to print logs.
+     * @param {HttpStatusCode} status the HTTP status to check for printing the error log.
+     * @param {any} error the reference to the error to log whether <code>status</code> is
+     *                    <code>HttpStatusCode.INTERNAL_SERVER_ERROR</code>..
+     */
+    public static processInternalError(req: Request, route: string, status: HttpStatusCode, error: any): void {
+        if (status === HttpStatusCode.INTERNAL_SERVER_ERROR) {
+            HeliosRouterLogUtils.logRouteError(req, route, error.toString());
+        }
     }
     
     /**

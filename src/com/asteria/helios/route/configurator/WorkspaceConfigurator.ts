@@ -7,7 +7,7 @@ import { HeliosRouter } from '../HeliosRouter';
 import { HeliosRoute } from '../HeliosRoute';
 import { HeliosRouterLogUtils } from '../../util/route/HeliosRouterLogUtils';
 import { AbstractHeliosRouteConfigurator } from './AbstractHeliosRouteConfigurator';
-import { HttpStatusCode, AsteriaException, AsteriaErrorCode, ErrorUtil, StreamEventType } from 'asteria-gaia';
+import { HttpStatusCode, AsteriaException, AsteriaErrorCode, ErrorUtil, StreamEventType, CommonChar } from 'asteria-gaia';
 import { FileWalker } from '../../util/io/FileWalker';
 import { HeliosFileStats, HeliosData } from 'asteria-eos';
 import { HeliosLogger } from '../../util/logging/HeliosLogger';
@@ -23,17 +23,28 @@ import { HeliosFileStatsBuilder } from '../../util/builder/HeliosFileStatsBuilde
 import { FormDataUtils } from '../../util/net/FormDataUtils';
 import { WorkspacePathUtils } from '../../util/io/WorkspacePathUtils';
 import { DirUtils } from '../../util/io/DirUtils';
+import { WorkspaceErrorMediator } from '../error/WorkspaceErrorMediator';
+import { BusboyEventType } from '../../lang/enum/BusboyEventType';
+import { FileErrorCode } from '../../lang/enum/FileErrorCode';
+import { HttpErrorUtils } from '../../util/error/HttpErrorUtils';
 
 /**
  * The <code>WorkspaceConfigurator</code> class is the <code>HeliosRouteConfigurator</code> implementation to declare 
  * the Helios <code>/workspace</code> route.
  */
 export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator implements HeliosRouteConfigurator {
+
+    /**
+     * The reference to the object that manages errors for this route configurator.
+     */
+    private readonly ERROR_MEDIATOR: WorkspaceErrorMediator = null;
+
     /**
      * Create a new <code>WorkspaceConfigurator</code> instance.
      */
     constructor() {
         super('workspace');
+        this.ERROR_MEDIATOR = new WorkspaceErrorMediator();
     }
 
     /**
@@ -58,14 +69,15 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      */
     private createListRoute(router: HeliosRouter, context: HeliosContext): void {
         const fileWalker: FileWalker = new FileWalker(context);
+        const pathPattern: string = 'POST /workspace/controller/list?path=';
         router.getRouter().post(HeliosRoute.WOKSPACE_CONTROLLER_LIST, (req: Request, res: Response) => {
-            const pathParam: string = req.query.path || '';
-            const templateRef: string = 'POST /workspace/controller/list?path=' + pathParam;
+            const pathParam: string = req.query.path || CommonChar.EMPTY;
+            const templateRef: string = pathPattern + pathParam;
             const realPath: string = WorkspacePathUtils.getInstance(context).getRealPath(pathParam);
             HeliosRouterLogUtils.logRoute(req, templateRef);
-            fileWalker.readDir(realPath, (error: AsteriaException, statsList: Array<HeliosFileStats>)=> {
+            fileWalker.readDir(realPath, (error: NodeJS.ErrnoException, statsList: Array<HeliosFileStats>)=> {
                 if (error) {
-                    res.sendStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                    HttpErrorUtils.processError(req, res, templateRef, this.ERROR_MEDIATOR.resolveListError, error);
                 } else {
                     const result: HeliosData<Array<HeliosFileStats>> = 
                         HeliosDataBuilder.build<Array<HeliosFileStats>>(context.getId(), statsList);
@@ -82,24 +94,27 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     private createUploadFileRoute(router: HeliosRouter, context: HeliosContext): void {
-        router.getRouter()
-              .post(HeliosRoute.WOKSPACE_CONTROLLER_UPLOAD, (req: Request, res: Response) => {
-            const pathParam: string = req.query.path || '';
-            const templateRef: string = 'POST /workspace/controller/upload?path=' + pathParam;
+        const pathPattern: string = 'POST /workspace/controller/upload?path=';
+        const CONNECTION_CLOSE: any = { 'Connection': 'close' };
+        router.getRouter().post(HeliosRoute.WOKSPACE_CONTROLLER_UPLOAD, (req: Request, res: Response) => {
+            const pathParam: string = req.query.path || CommonChar.EMPTY;
+            const templateRef: string = pathPattern + pathParam;
             HeliosRouterLogUtils.logRoute(req, templateRef);
             try {
                 const formDataStream: busboy.Busboy = FormDataUtils.buildFormDataStream(req);
                 const realPath: string = WorkspacePathUtils.getInstance(context).getRealPath(pathParam);
                 let filePath: fs.PathLike = null;
-                formDataStream.on('file', (fieldname: string, file: NodeJS.ReadableStream, filename: string,
-                                           encoding: string, mimetype: string)=> {
+                formDataStream.on(BusboyEventType.FILE,
+                                  (fieldname: string, file: NodeJS.ReadableStream, filename: string, encoding: string,
+                                   mimetype: string)=> {
                     filePath = path.join(realPath, filename);
                     fs.exists(realPath, (exists: boolean)=> {
                         if (!exists) {
                             DirUtils.getInstance().mkdirp(realPath, null, (err: NodeJS.ErrnoException)=> {
                                 if (err) {
-                                    res.status(HttpStatusCode.INTERNAL_SERVER_ERROR);
-                                    res.send(err.message);
+                                    HeliosRouterLogUtils.processInternalError(
+                                        req, templateRef, HttpStatusCode.INTERNAL_SERVER_ERROR, err
+                                    );
                                 } else {
                                     file.pipe(fs.createWriteStream(filePath));
                                 }
@@ -109,14 +124,15 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                         }
                     });
                 });
-                formDataStream.on('finish', ()=> {
+                formDataStream.on(BusboyEventType.FINISH, ()=> {
                     setTimeout(()=> {
                         fs.stat(filePath, (err: NodeJS.ErrnoException, stats: fs.Stats)=> {
                             if (err) {
-                                res.status(HttpStatusCode.INTERNAL_SERVER_ERROR);
-                                res.send(err.message);
+                                HeliosRouterLogUtils.processInternalError(
+                                    req, templateRef, HttpStatusCode.INTERNAL_SERVER_ERROR, err
+                                );
                             } else {
-                                res.writeHead(HttpStatusCode.OK, { 'Connection': 'close' });
+                                res.writeHead(HttpStatusCode.OK, CONNECTION_CLOSE);
                                 const heliosFile: HeliosFileStats = this.buildFileStats(pathParam, stats);
                                 const result: HeliosData<HeliosFileStats> = 
                                     HeliosDataBuilder.build<HeliosFileStats>(context.getId(), heliosFile);
@@ -126,15 +142,8 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                     }, 0);
                 });
                 req.pipe(formDataStream);
-            } catch (e) {
-                const message: string = e.message;
-                if (message === 'Multipart: Boundary not found') {
-                    res.status(HttpStatusCode.NOT_ACCEPTABLE);
-                } else {
-                    console.log(e);
-                    res.status(HttpStatusCode.INTERNAL_SERVER_ERROR);
-                }
-                res.send(message);
+            } catch (error) {
+                HttpErrorUtils.processError(req, res, templateRef, this.ERROR_MEDIATOR.resolveUploadHttpError, error);
             }
         });
     }
@@ -146,15 +155,15 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     private createRemoveRoute(router: HeliosRouter, context: HeliosContext): void {
+        const pathPattern: string = 'POST /workspace/controller/remove?path=';
         router.getRouter().post(HeliosRoute.WOKSPACE_CONTROLLER_REMOVE, (req: Request, res: Response) => {
-            const pathParam: string = req.query.path || '';
-            const templateRef: string = 'POST /workspace/controller/remove?path=' + pathParam;
+            const pathParam: string = req.query.path || CommonChar.EMPTY;
+            const templateRef: string = pathPattern + pathParam;
             const realPath: string = WorkspacePathUtils.getInstance(context).getRealPath(pathParam);
             HeliosRouterLogUtils.logRoute(req, templateRef);
-            DirUtils.getInstance().rimrf(realPath, (err: NodeJS.ErrnoException)=> {
-                if (err) {
-                    HeliosLogger.getLogger().error(err.toString());
-                    res.sendStatus(HttpStatusCode.NOT_FOUND);
+            DirUtils.getInstance().rimrf(realPath, (error: NodeJS.ErrnoException)=> {
+                if (error) {
+                    HttpErrorUtils.processError(req, res, templateRef, this.ERROR_MEDIATOR.resolveRemoveError, error);
                 } else {
                     res.sendStatus(HttpStatusCode.OK);
                 }
@@ -169,22 +178,26 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     private createDownloadRoute(router: HeliosRouter, context: HeliosContext): void {
+        const pathPattern: string = 'POST /workspace/controller/download?path=';
         router.getRouter().post(HeliosRoute.WOKSPACE_CONTROLLER_DOWNLOAD, (req: Request, res: Response) => {
-            const pathParam: string = req.query.path || '';
-            const templateRef: string = 'POST /workspace/controller/download?path=' + pathParam;
+            const pathParam: string = req.query.path || CommonChar.EMPTY;
+            const templateRef: string = pathPattern + pathParam;
             const realPath: fs.PathLike = WorkspacePathUtils.getInstance(context).getRealPath(pathParam);
             HeliosRouterLogUtils.logRoute(req, templateRef);
             fs.exists(realPath, (exists: boolean)=> {
                 if (exists) {
                     res.status(HttpStatusCode.OK)
+                        // TODO: get the real name
                         .download(realPath, 'test.txt', (err: Error)=> {
                             if (err) {
-                                res.status(HttpStatusCode.INTERNAL_SERVER_ERROR);
-                                res.send(err.message);
+                                HttpErrorUtils.processError(
+                                    req, res, templateRef, this.ERROR_MEDIATOR.resolveDownloadError, err
+                                );
                             }
                         });
                 } else {
-                    res.sendStatus(HttpStatusCode.NOT_FOUND);
+                    const error: any = { code: FileErrorCode.ENOENT };
+                    HttpErrorUtils.processError(req, res, templateRef, this.ERROR_MEDIATOR.resolveDownloadError, error);
                 }
             });
         });
@@ -197,13 +210,13 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     private createMkdirRoute(router: HeliosRouter, context: HeliosContext): void {
+        const pathPattern: string = 'POST /workspace/controller/mkdir?path=';
         router.getRouter().post(HeliosRoute.WOKSPACE_CONTROLLER_MKDIR, (req: Request, res: Response) => {
             const pathParam: string = req.query.path;
-            const templateRef: string = 'POST /workspace/controller/mkdir?path=' + pathParam;
+            const templateRef: string = pathPattern + pathParam;
             HeliosRouterLogUtils.logRoute(req, templateRef);
             try {
                 const realPath: string = WorkspacePathUtils.getInstance(context).getRealPath(pathParam);
-
                 fs.exists(realPath, (exists: boolean)=> {
                     if (!exists) {
                         DirUtils.getInstance().mkdirp(realPath, null, (err: NodeJS.ErrnoException)=> {
@@ -238,9 +251,10 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     private createRenameRoute(router: HeliosRouter, context: HeliosContext): void {
+        const pathPattern: string = 'POST /workspace/controller/rename?path=';
         router.getRouter().post(HeliosRoute.WOKSPACE_CONTROLLER_RENAME, (req: Request, res: Response) => {
             const pathParam: string = req.query.path;
-            const templateRef: string = 'POST /workspace/controller/rename?path=' + pathParam;
+            const templateRef: string = pathPattern + pathParam;
             HeliosRouterLogUtils.logRoute(req, templateRef);
             try {
                 const realPath: string = WorkspacePathUtils.getInstance(context).getRealPath(pathParam);
@@ -265,9 +279,10 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     private createPreviewRoute(router: HeliosRouter, context: HeliosContext): void {
+        const pathPattern: string = 'POST /workspace/controller/preview?path=';
         router.getRouter().post(HeliosRoute.WOKSPACE_CONTROLLER_PREVIEW, (req: Request, res: Response) => {
             const pathParam: string = req.query.path;
-            const templateRef: string = 'POST /workspace/controller/preview?path=' + pathParam;
+            const templateRef: string = pathPattern + pathParam;
             HeliosRouterLogUtils.logRoute(req, templateRef);
             try {
                 const realPath: string = WorkspacePathUtils.getInstance(context).getRealPath(pathParam);

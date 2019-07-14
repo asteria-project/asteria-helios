@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { AsteriaException, AsteriaErrorCode } from 'asteria-gaia';
 import { HeliosFileStats } from 'asteria-eos';
 import { HeliosFileStatsBuilder } from '../builder/HeliosFileStatsBuilder';
 import { WorkspacePathUtils } from './WorkspacePathUtils';
@@ -31,15 +30,10 @@ export class FileWalker {
      * @param {string} dirPath the path to the directory for which to get the structure.
      * @param {Function} callback the callback function that exposes data once the directory has been processed.
      */
-    public readDir(dirPath: string, callback: (error: AsteriaException, data: HeliosFileStats[])=> void): void {
+    public readDir(dirPath: string, callback: (err: NodeJS.ErrnoException, data: HeliosFileStats[])=> void): void {
         fs.readdir(dirPath, (err: NodeJS.ErrnoException, files: string[]) => {
             if (err) {
-                const error: AsteriaException = new AsteriaException(
-                    AsteriaErrorCode.FILE_READ_ERROR,
-                    `unable to read files in path "${dirPath}"`,
-                    err.toString()
-                );
-                callback(error, null);
+                callback(err, null);
             } else {
                 const result: HeliosFileStats[] = new Array<HeliosFileStats>();
                 const fixedPath: string = WorkspacePathUtils.getInstance(this.CONTEXT).maskRealPath(dirPath);
@@ -51,12 +45,7 @@ export class FileWalker {
                         let itemPath: string = path.join(dirPath, file);
                         fs.stat(itemPath, (err: NodeJS.ErrnoException, stats: fs.Stats) => {
                             if (err) {
-                                const error: AsteriaException = new AsteriaException(
-                                    AsteriaErrorCode.FILE_READ_ERROR,
-                                    `unable to read file "${itemPath}"`,
-                                    err.toString()
-                                );
-                                callback(error, null);
+                                callback(err, null);
                             } else {
                                 const fileStats: HeliosFileStats = HeliosFileStatsBuilder.build(file, fixedPath, stats);
                                 result.push(fileStats);

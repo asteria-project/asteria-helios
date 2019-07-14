@@ -23,8 +23,19 @@ export class JobsConfigurator extends AbstractHeliosRouteConfigurator implements
      * @inheritdoc
      */
     public createRoute(router: HeliosRouter, context: HeliosContext): void {
+        this.createListRoute(router, context);
+    }
+    
+    /**
+     * Create the route for the <code>/jobs</code> path and the HTTP <code>GTE</code> method.
+     * 
+     * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
+     * @param {HeliosContext} context the reference to the Helios server context.
+     */
+    private createListRoute(router: HeliosRouter, context: HeliosContext): void {
+        const pathPattern: string = 'GET /jobs';
         router.getRouter().get(HeliosRoute.JOBS, (req: Request, res: Response) => {
-            HeliosRouterLogUtils.logRoute(req, 'GET /jobs');
+            HeliosRouterLogUtils.logRoute(req, pathPattern);
             res.send('List of registered processors');
         });
        this.routeAdded(HeliosRoute.JOBS);

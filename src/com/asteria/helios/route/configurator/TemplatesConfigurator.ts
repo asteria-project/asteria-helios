@@ -43,12 +43,13 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     private createGetTemplatesRoute(router: HeliosRouter, context: HeliosContext): void {
+        const pathPattern: string = 'GET /templates';
         router.getRouter().get(HeliosRoute.TEMPLATES, (req: Request, res: Response) => {
-            HeliosRouterLogUtils.logRoute(req, 'GET /templates');
+            HeliosRouterLogUtils.logRoute(req, pathPattern);
             const registry: TemplateRegistry = context.getSpiContext().getService(HeliosServiceName.TEMPLATE_REGISTRY);
             registry.getAll((err:AsteriaException,  templates: Array<HeliosTemplate>)=> {
                 if (err) {
-                    HeliosRouterLogUtils.logRouteError(req, 'GET /templates', err.toString());
+                    HeliosRouterLogUtils.logRouteError(req, pathPattern, err.toString());
                     res.sendStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
                 } else {
                     res.send(templates);
@@ -64,9 +65,10 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     private createGetTemplateRoute(router: HeliosRouter, context: HeliosContext): void {
+        const pathPattern: string = 'GET /templates/';
         router.getRouter().get(HeliosRoute.TEMPLATES_ID, (req: Request, res: Response) => {
             const id: string = req.params.id;
-            const templateRef: string = 'GET /templates/' + id;
+            const templateRef: string = pathPattern + id;
             HeliosRouterLogUtils.logRoute(req, templateRef);
             const registry: TemplateRegistry = context.getSpiContext().getService(HeliosServiceName.TEMPLATE_REGISTRY);
             registry.get(id, (err: AsteriaException, template: HeliosTemplate)=> {
@@ -91,13 +93,14 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     private createPostTemplateRoute(router: HeliosRouter, context: HeliosContext): void {
+        const pathPattern: string = 'POST /templates';
         router.getRouter().post(HeliosRoute.TEMPLATES, (req: Request, res: Response) => {
-            HeliosRouterLogUtils.logRoute(req, 'POST /templates');
+            HeliosRouterLogUtils.logRoute(req, pathPattern);
             const registry: TemplateRegistry = context.getSpiContext().getService(HeliosServiceName.TEMPLATE_REGISTRY);
             const template: HeliosTemplate = HeliosTemplateBuilder.buildFromBody(req.body);
             registry.add(template, (err: AsteriaException)=> {
                 if (err) {
-                    HeliosRouterLogUtils.logRouteError(req, 'POST /templates', err.toString());
+                    HeliosRouterLogUtils.logRouteError(req, pathPattern, err.toString());
                     res.sendStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
                 } else {
                     const id: string = template.id;
@@ -115,10 +118,11 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     private createPutTemplateRoute(router: HeliosRouter, context: HeliosContext): void {
+        const pathPattern: string = 'PUT /templates/';
         // TODO: code improvement
         router.getRouter().put(HeliosRoute.TEMPLATES_ID, (req: Request, res: Response) => {
             const id: string = req.params.id;
-            const templateRef: string = 'PUT /templates/' + id;
+            const templateRef: string = pathPattern + id;
             HeliosRouterLogUtils.logRoute(req, templateRef);
             const updatedTemplate: HeliosTemplate = JSON.parse(req.body);
             const registry: TemplateRegistry = context.getSpiContext().getService(HeliosServiceName.TEMPLATE_REGISTRY);

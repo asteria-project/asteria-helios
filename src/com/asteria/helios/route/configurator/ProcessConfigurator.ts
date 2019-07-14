@@ -41,9 +41,10 @@ export class ProcessConfigurator extends AbstractHeliosRouteConfigurator impleme
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     private createRunRoute(router: HeliosRouter, context: HeliosContext): void {
+        const pathPattern: string = 'POST /process/controller/';
         router.getRouter().post(HeliosRoute.PROCESS_RUN, (req: Request, res: Response) => {
             const id: string = req.params.id;
-            const templateRef: string = 'POST /process/controller/' + id;
+            const templateRef: string = pathPattern + id;
             HeliosRouterLogUtils.logRoute(req, templateRef);
             const spi: SpiContext = context.getSpiContext();
             spi.getService(HeliosServiceName.TEMPLATE_REGISTRY)
