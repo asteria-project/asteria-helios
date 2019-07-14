@@ -21,7 +21,7 @@ export class WorkspaceErrorMediator {
         const heliosHttpError: HeliosHttpError = HeliosHttpErrorBuilder.build(
             HeliosHttpErrorCode.ERR_DIRECTORY_LISTING_FAILED,
             status,
-            `Failed to retrieve directory listing`
+            `Failed to retrieve directory listing.`
         );
         return heliosHttpError;
     }
@@ -48,7 +48,7 @@ export class WorkspaceErrorMediator {
             status = HttpStatusCode.NOT_ACCEPTABLE;
             code = HeliosHttpErrorCode.ERR_MULTIPART_BOUNDARY_NOT_FOUND;
         }
-        const heliosHttpError: HeliosHttpError = HeliosHttpErrorBuilder.build(code, status, message);
+        const heliosHttpError: HeliosHttpError = HeliosHttpErrorBuilder.build(code, status, `${message}.`);
         return heliosHttpError;
     }
     
@@ -65,7 +65,7 @@ export class WorkspaceErrorMediator {
         let code: HeliosHttpErrorCode = HeliosHttpErrorCode.ERR_INTERNAL_PROCESS_FAILURE;
         if (error.code === FileErrorCode.ENOENT) {
             status = HttpStatusCode.NOT_FOUND;
-            message = `Failed to find directory or file`;
+            message = `Failed to find directory or file.`;
             code = HeliosHttpErrorCode.ERR_RESOURCE_NOT_FOUND;
         }                                                     
         const heliosHttpError: HeliosHttpError = HeliosHttpErrorBuilder.build(code, status, message);
@@ -86,11 +86,36 @@ export class WorkspaceErrorMediator {
         if (error.code === FileErrorCode.EISDIR) {
             status = HttpStatusCode.NOT_ACCEPTABLE;
             code = HeliosHttpErrorCode.ERR_RESOURCE_IS_A_DIRECTORY;
-            message = `Resource is a directory while a file is expected`;
+            message = `Resource is a directory while a file is expected.`;
         } else if (error.code === FileErrorCode.ENOENT) {
             status = HttpStatusCode.NOT_FOUND;
-            message = `Invalid file path`;
+            message = `Invalid file path.`;
             code = HeliosHttpErrorCode.ERR_RESOURCE_NOT_FOUND;
+        }
+        const heliosHttpError: HeliosHttpError = HeliosHttpErrorBuilder.build(code, status, message);
+        return heliosHttpError;
+    }
+    
+    /**
+     * Return the right Helios HTTP error object associated with the 'mkdir' path.
+     * 
+     * @param {any} error the error to process.
+     * 
+     * @returns {HeliosHttpError} the right Helios HTTP error object associated with the 'mkdir' path.
+     */
+    public resolveMkdirError(error: any): HeliosHttpError {
+        const errorStatus: HttpStatusCode = error.status;
+        let message: string = error.message;
+        let status: HttpStatusCode = HttpStatusCode.INTERNAL_SERVER_ERROR;
+        let code: HeliosHttpErrorCode = HeliosHttpErrorCode.ERR_INTERNAL_PROCESS_FAILURE;
+        if (errorStatus && errorStatus === HttpStatusCode.UNPROCESSABLE_ENTITY) {
+            status = errorStatus;
+            code = HeliosHttpErrorCode.ERR_RESOURCE_PATH_INVALID;
+            message = `Resource path is invalid.`;
+        } else if (errorStatus && errorStatus === HttpStatusCode.CONFLICT) {
+            status = errorStatus;
+            code = HeliosHttpErrorCode.ERR_RESOURCE_PATH_INVALID;
+            message = `An important resource with the same name already exists.`;
         }
         const heliosHttpError: HeliosHttpError = HeliosHttpErrorBuilder.build(code, status, message);
         return heliosHttpError;

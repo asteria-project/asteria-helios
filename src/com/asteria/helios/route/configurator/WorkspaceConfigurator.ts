@@ -7,7 +7,7 @@ import { HeliosRouter } from '../HeliosRouter';
 import { HeliosRoute } from '../HeliosRoute';
 import { HeliosRouterLogUtils } from '../../util/route/HeliosRouterLogUtils';
 import { AbstractHeliosRouteConfigurator } from './AbstractHeliosRouteConfigurator';
-import { HttpStatusCode, AsteriaException, AsteriaErrorCode, ErrorUtil, StreamEventType, CommonChar } from 'asteria-gaia';
+import { HttpStatusCode, AsteriaException, AsteriaErrorCode, StreamEventType, CommonChar } from 'asteria-gaia';
 import { FileWalker } from '../../util/io/FileWalker';
 import { HeliosFileStats, HeliosData } from 'asteria-eos';
 import { HeliosLogger } from '../../util/logging/HeliosLogger';
@@ -215,31 +215,35 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
             const pathParam: string = req.query.path;
             const templateRef: string = pathPattern + pathParam;
             HeliosRouterLogUtils.logRoute(req, templateRef);
-            try {
-                const realPath: string = WorkspacePathUtils.getInstance(context).getRealPath(pathParam);
-                fs.exists(realPath, (exists: boolean)=> {
-                    if (!exists) {
-                        DirUtils.getInstance().mkdirp(realPath, null, (err: NodeJS.ErrnoException)=> {
-                            if (err) {
-                                res.status(HttpStatusCode.INTERNAL_SERVER_ERROR);
-                                res.send(err.message);
-                            } else {
-                                res.sendStatus(HttpStatusCode.CREATED);
-                            }
-                        });
-                    } else {
-                        res.status(HttpStatusCode.CONFLICT);
-                        res.send('An important resource with the same name already exists.');
-                    }
-                });
-            } catch (e) {
-                HeliosLogger.getLogger().error(e.toString());
-                if (e instanceof TypeError) {
-                    res.status(HttpStatusCode.UNPROCESSABLE_ENTITY);
-                    res.send(e.message);
-                } else {
-                    res.sendStatus(ErrorUtil.resolveHttpCode(AsteriaErrorCode.PROCESS_FAILURE));
+            if (pathParam) {
+                try {
+                    const realPath: string = WorkspacePathUtils.getInstance(context).getRealPath(pathParam);
+                    fs.exists(realPath, (exists: boolean)=> {
+                        if (!exists) {
+                            DirUtils.getInstance().mkdirp(realPath, null, (err: NodeJS.ErrnoException)=> {
+                                if (err) {
+                                    HeliosRouterLogUtils.processInternalError(
+                                        req, templateRef, HttpStatusCode.INTERNAL_SERVER_ERROR, err
+                                    );
+                                } else {
+                                    res.sendStatus(HttpStatusCode.CREATED);
+                                }
+                            });
+                        } else {
+                            const error: any = { status: HttpStatusCode.CONFLICT };
+                            HttpErrorUtils.processError(
+                                req, res, templateRef, this.ERROR_MEDIATOR.resolveMkdirError, error
+                            );
+                        }
+                    });
+                } catch (err) {
+                    HeliosRouterLogUtils.processInternalError(
+                        req, templateRef, HttpStatusCode.INTERNAL_SERVER_ERROR, err
+                    );
                 }
+            } else {
+                const error: any = { status: HttpStatusCode.UNPROCESSABLE_ENTITY };
+                HttpErrorUtils.processError(req, res, templateRef, this.ERROR_MEDIATOR.resolveMkdirError, error);
             }
         });
     }
@@ -260,14 +264,8 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                 const realPath: string = WorkspacePathUtils.getInstance(context).getRealPath(pathParam);
                 // TODO: add rename process
                 res.sendStatus(HttpStatusCode.OK);
-            } catch (e) {
-                HeliosLogger.getLogger().error(e.toString());
-                if (e instanceof TypeError) {
-                    res.status(HttpStatusCode.UNPROCESSABLE_ENTITY);
-                    res.send(e.message);
-                } else {
-                    res.sendStatus(ErrorUtil.resolveHttpCode(AsteriaErrorCode.PROCESS_FAILURE));
-                }
+            } catch (err) {
+                HeliosRouterLogUtils.processInternalError(req, templateRef, HttpStatusCode.INTERNAL_SERVER_ERROR, err);
             }
         });
     }
@@ -317,9 +315,8 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                             });
                     }
                 });
-            } catch (e) {
-                HeliosLogger.getLogger().error(e.toString());
-                res.sendStatus(ErrorUtil.resolveHttpCode(AsteriaErrorCode.PROCESS_FAILURE));
+            } catch (err) {
+                HeliosRouterLogUtils.processInternalError(req, templateRef, HttpStatusCode.INTERNAL_SERVER_ERROR, err);
             }
         });
     }
