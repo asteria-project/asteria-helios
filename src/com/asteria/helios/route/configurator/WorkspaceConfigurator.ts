@@ -166,7 +166,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                 if (error) {
                     HttpErrorUtils.processError(req, res, templateRef, this.ERROR_MEDIATOR.resolveRemoveError, error);
                 } else {
-                    res.status(HttpStatusCode.OK).send(HeliosDataBuilder.build<any>(context.getId(), null));
+                    res.status(HttpStatusCode.NO_CONTENT).send(HeliosDataBuilder.build<any>(context.getId(), null));
                 }
             });
         });
@@ -257,17 +257,36 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     private createRenameRoute(router: HeliosRouter, context: HeliosContext): void {
-        const pathPattern: string = 'POST /workspace/controller/rename?path=';
+        const pathPattern: string = 'POST /workspace/controller/rename?oldPath=&newPath=';
         router.getRouter().post(HeliosRoute.WOKSPACE_CONTROLLER_RENAME, (req: Request, res: Response) => {
-            const pathParam: string = req.query.path;
-            const templateRef: string = pathPattern + pathParam;
-            HeliosRouterLogUtils.logRoute(req, templateRef);
-            try {
-                const realPath: string = WorkspacePathUtils.getInstance(context).getRealPath(pathParam);
-                // TODO: add rename process
-                res.sendStatus(HttpStatusCode.OK);
-            } catch (err) {
-                HeliosRouterLogUtils.processInternalError(req, templateRef, HttpStatusCode.INTERNAL_SERVER_ERROR, err);
+            const oldPathParam: string = req.query.oldPath;
+            const newPathParam: string = req.query.newPath;
+            HeliosRouterLogUtils.logRoute(req, pathPattern);
+            if (oldPathParam && newPathParam) {
+                const realOldPath: string = WorkspacePathUtils.getInstance(context).getRealPath(oldPathParam);
+                const realNewPath: string = WorkspacePathUtils.getInstance(context).getRealPath(newPathParam);
+                fs.exists(realOldPath, (exists: boolean)=> {
+                    if (exists) {
+                        fs.rename(realOldPath, realNewPath, (err: NodeJS.ErrnoException)=> {
+                            if (err) {
+                                HeliosRouterLogUtils.processInternalError(
+                                    req, pathPattern, HttpStatusCode.INTERNAL_SERVER_ERROR, err
+                                );
+                            } else {
+                                const result: HeliosData<any> = HeliosDataBuilder.build<any>(context.getId(), null);
+                                res.status(HttpStatusCode.NO_CONTENT).send(result);
+                            }
+                        });
+                    } else {
+                        const error: any = { code: FileErrorCode.ENOENT };
+                        HttpErrorUtils.processError(
+                            req, res, pathPattern, this.ERROR_MEDIATOR.resolveDownloadError, error
+                        );
+                    }
+                });
+            } else {
+                const error: any = { status: HttpStatusCode.UNPROCESSABLE_ENTITY };
+                HttpErrorUtils.processError(req, res, pathPattern, this.ERROR_MEDIATOR.resolveRenameError, error);
             }
         });
     }

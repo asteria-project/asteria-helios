@@ -150,4 +150,29 @@ export class WorkspaceErrorMediator {
         return heliosHttpError;
     }
     
+    /**
+     * Return the right Helios HTTP error object associated with the 'rename' path.
+     * 
+     * @param {any} error the error to process.
+     * 
+     * @returns {HeliosHttpError} the right Helios HTTP error object associated with the 'rename' path.
+     */
+    public resolveRenameError(error: any): HeliosHttpError {
+        const errorCode: any = error.code;
+        const errorStatus: HttpStatusCode = error.status;
+        let message: string = error.message;
+        let status: HttpStatusCode = HttpStatusCode.INTERNAL_SERVER_ERROR;
+        let code: HeliosHttpErrorCode = HeliosHttpErrorCode.ERR_INTERNAL_PROCESS_FAILURE;
+        if (errorStatus && errorStatus === HttpStatusCode.UNPROCESSABLE_ENTITY) {
+            status = errorStatus;
+            code = HeliosHttpErrorCode.ERR_RESOURCE_PATH_INVALID;
+            message = `Resource paths are invalid.`;
+        } else if (errorCode && errorCode === FileErrorCode.ENOENT) {
+            status = HttpStatusCode.NOT_FOUND;
+            message = `Invalid file path.`;
+            code = HeliosHttpErrorCode.ERR_RESOURCE_NOT_FOUND;
+        } 
+        const heliosHttpError: HeliosHttpError = HeliosHttpErrorBuilder.build(code, status, message);
+        return heliosHttpError;
+    }
 }
