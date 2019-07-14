@@ -166,8 +166,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                 if (error) {
                     HttpErrorUtils.processError(req, res, templateRef, this.ERROR_MEDIATOR.resolveRemoveError, error);
                 } else {
-                    // TODO: add Helios data to response
-                    res.sendStatus(HttpStatusCode.OK);
+                    res.status(HttpStatusCode.OK).send(HeliosDataBuilder.build<any>(context.getId(), null));
                 }
             });
         });
@@ -228,8 +227,8 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                                         req, templateRef, HttpStatusCode.INTERNAL_SERVER_ERROR, err
                                     );
                                 } else {
-                                    // TODO: add Helios data to response
-                                    res.sendStatus(HttpStatusCode.CREATED);
+                                    res.status(HttpStatusCode.CREATED)
+                                       .send(HeliosDataBuilder.build<any>(context.getId(), null));
                                 }
                             });
                         } else {

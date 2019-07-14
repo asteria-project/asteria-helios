@@ -6,11 +6,14 @@ import { HeliosRoute } from '../HeliosRoute';
 import { HeliosRouterLogUtils } from '../../util/route/HeliosRouterLogUtils';
 import { TemplateRegistry } from '../../service/data/TemplateRegistry';
 import { AsteriaException, HttpStatusCode } from 'asteria-gaia';
-import { HeliosTemplate } from 'asteria-eos';
+import { HeliosTemplate, HeliosData } from 'asteria-eos';
 import { HeliosTemplateBuilder } from '../../util/builder/HeliosTemplateBuilder';
 import { HeliosServiceName } from '../../core/HeliosServiceName';
 import { AbstractHeliosRouteConfigurator } from './AbstractHeliosRouteConfigurator';
 import { HeaderUtils } from '../../util/net/HeaderUtils';
+import { TemplateErrorMediator } from '../error/TemplateErrorMediator';
+import { HttpErrorUtils } from '../../util/error/HttpErrorUtils';
+import { HeliosDataBuilder } from '../../util/builder/HeliosDataBuilder';
 
 /**
  * The <code>TemplatesConfigurator</code> class is the <code>HeliosRouteConfigurator</code> implementation to declare 
@@ -19,10 +22,16 @@ import { HeaderUtils } from '../../util/net/HeaderUtils';
 export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator implements HeliosRouteConfigurator {
 
     /**
+     * The reference to the object that manages errors for this route configurator.
+     */
+    private readonly ERROR_MEDIATOR: TemplateErrorMediator = null;
+
+    /**
      * Create a new <code>TemplatesConfigurator</code> instance.
      */
     constructor() {
         super('templates');
+        this.ERROR_MEDIATOR = new TemplateErrorMediator();
     }
     
     /**
@@ -47,12 +56,15 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
         router.getRouter().get(HeliosRoute.TEMPLATES, (req: Request, res: Response) => {
             HeliosRouterLogUtils.logRoute(req, pathPattern);
             const registry: TemplateRegistry = context.getSpiContext().getService(HeliosServiceName.TEMPLATE_REGISTRY);
-            registry.getAll((err:AsteriaException,  templates: Array<HeliosTemplate>)=> {
+            registry.getAll((err: AsteriaException,  templates: Array<HeliosTemplate>)=> {
                 if (err) {
-                    HeliosRouterLogUtils.logRouteError(req, pathPattern, err.toString());
-                    res.sendStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                    HttpErrorUtils.processError(
+                        req, res, pathPattern, this.ERROR_MEDIATOR.resolveTemplatesError, err
+                    );
                 } else {
-                    res.send(templates);
+                    const result: HeliosData<Array<HeliosTemplate>> =
+                        HeliosDataBuilder.build<Array<HeliosTemplate>>(context.getId(), templates);
+                    res.send(result);
                 }
             });
         });
@@ -73,11 +85,14 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
             const registry: TemplateRegistry = context.getSpiContext().getService(HeliosServiceName.TEMPLATE_REGISTRY);
             registry.get(id, (err: AsteriaException, template: HeliosTemplate)=> {
                 if (err) {
-                    HeliosRouterLogUtils.logRouteError(req, templateRef, err.toString());
-                    res.sendStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                    HttpErrorUtils.processError(
+                        req, res, templateRef, this.ERROR_MEDIATOR.resolveTemplatesError, err
+                    );
                 } else {
                     if (template) {
-                        res.send(template);
+                        const result: HeliosData<HeliosTemplate> =
+                            HeliosDataBuilder.build<HeliosTemplate>(context.getId(), template);
+                        res.send(result);
                     } else {
                         res.sendStatus(HttpStatusCode.NOT_FOUND);
                     }
@@ -100,12 +115,14 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
             const template: HeliosTemplate = HeliosTemplateBuilder.buildFromBody(req.body);
             registry.add(template, (err: AsteriaException)=> {
                 if (err) {
-                    HeliosRouterLogUtils.logRouteError(req, pathPattern, err.toString());
-                    res.sendStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                    HttpErrorUtils.processError(
+                        req, res, pathPattern, this.ERROR_MEDIATOR.resolveTemplatesError, err
+                    );
                 } else {
                     const id: string = template.id;
                     HeaderUtils.setLocation(context, res, `${HeliosRoute.TEMPLATES}/${id}`);
-                    res.status(HttpStatusCode.CREATED).send(id);
+                    const result: HeliosData<string> = HeliosDataBuilder.build<string>(context.getId(), id);
+                    res.status(HttpStatusCode.CREATED).send(result);
                 }
             });
         });
@@ -119,7 +136,6 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
      */
     private createPutTemplateRoute(router: HeliosRouter, context: HeliosContext): void {
         const pathPattern: string = 'PUT /templates/';
-        // TODO: code improvement
         router.getRouter().put(HeliosRoute.TEMPLATES_ID, (req: Request, res: Response) => {
             const id: string = req.params.id;
             const templateRef: string = pathPattern + id;
@@ -128,18 +144,21 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
             const registry: TemplateRegistry = context.getSpiContext().getService(HeliosServiceName.TEMPLATE_REGISTRY);
             registry.get(id, (err: AsteriaException, template: HeliosTemplate)=> {
                 if (err) {
-                    HeliosRouterLogUtils.logRouteError(req, templateRef, err.toString());
-                    res.sendStatus(500);
+                    HttpErrorUtils.processError(
+                        req, res, templateRef, this.ERROR_MEDIATOR.resolveTemplatesError, err
+                    );
                 } else {
                     if (template) {
                         template.description = updatedTemplate.description;
                         template.processes = updatedTemplate.processes;
                         registry.add(template, (err: AsteriaException)=>{
                             if (err) {
-                                HeliosRouterLogUtils.logRouteError(req, templateRef, err.toString());
-                                res.sendStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                                HttpErrorUtils.processError(
+                                    req, res, templateRef, this.ERROR_MEDIATOR.resolveTemplatesError, err
+                                );
                             } else {
-                                res.sendStatus(HttpStatusCode.NO_CONTENT);
+                                res.status(HttpStatusCode.NO_CONTENT)
+                                   .send(HeliosDataBuilder.build<any>(context.getId(), null));
                             }
                         });
                     } else {
