@@ -1,5 +1,5 @@
 import { HeliosHttpError, HeliosHttpErrorCode } from 'asteria-eos';
-import { HttpStatusCode } from 'asteria-gaia';
+import { HttpStatusCode, AsteriaError } from 'asteria-gaia';
 import { HeliosHttpErrorBuilder } from '../../util/builder/HeliosHttpErrorBuilder';
 import { FileErrorCode } from '../../lang/enum/FileErrorCode';
 
@@ -120,4 +120,34 @@ export class WorkspaceErrorMediator {
         const heliosHttpError: HeliosHttpError = HeliosHttpErrorBuilder.build(code, status, message);
         return heliosHttpError;
     }
+    
+    /**
+     * Return the right Helios HTTP error object associated with the 'preview' path.
+     * 
+     * @param {any} error the error to process.
+     * 
+     * @returns {HeliosHttpError} the right Helios HTTP error object associated with the 'preview' path.
+     */
+    public resolvePrevieError(error: any): HeliosHttpError {
+        const errorCode: any = error.code;
+        let message: string = error.message;
+        let status: HttpStatusCode = HttpStatusCode.INTERNAL_SERVER_ERROR;
+        let code: HeliosHttpErrorCode = HeliosHttpErrorCode.ERR_INTERNAL_PROCESS_FAILURE;
+        if (error instanceof AsteriaError) {
+            code = HeliosHttpErrorCode.ERR_ASTERIA_PROCESS_FAILURE;
+        } else if (errorCode) {
+            if (errorCode === FileErrorCode.EISDIR) {
+                status = HttpStatusCode.NOT_ACCEPTABLE;
+                code = HeliosHttpErrorCode.ERR_RESOURCE_IS_A_DIRECTORY;
+                message = `Resource is a directory while a file is expected.`;
+            } else if (errorCode === FileErrorCode.ENOENT) {
+                status = HttpStatusCode.NOT_FOUND;
+                message = `Invalid file path.`;
+                code = HeliosHttpErrorCode.ERR_RESOURCE_NOT_FOUND;
+            }
+        } 
+        const heliosHttpError: HeliosHttpError = HeliosHttpErrorBuilder.build(code, status, message);
+        return heliosHttpError;
+    }
+    
 }

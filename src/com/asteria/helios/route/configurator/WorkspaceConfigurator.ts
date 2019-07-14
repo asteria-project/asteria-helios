@@ -7,15 +7,13 @@ import { HeliosRouter } from '../HeliosRouter';
 import { HeliosRoute } from '../HeliosRoute';
 import { HeliosRouterLogUtils } from '../../util/route/HeliosRouterLogUtils';
 import { AbstractHeliosRouteConfigurator } from './AbstractHeliosRouteConfigurator';
-import { HttpStatusCode, AsteriaException, AsteriaErrorCode, StreamEventType, CommonChar } from 'asteria-gaia';
+import { HttpStatusCode, AsteriaException, StreamEventType, CommonChar } from 'asteria-gaia';
 import { FileWalker } from '../../util/io/FileWalker';
 import { HeliosFileStats, HeliosData } from 'asteria-eos';
-import { HeliosLogger } from '../../util/logging/HeliosLogger';
 import { SpiContext } from '../../spi/SpiContext';
 import { Hyperion, HyperionConfig, HyperionBaseProcessType } from 'asteria-hyperion';
 import { HeliosServiceName } from '../../core/HeliosServiceName';
 import { ModuleRegistry } from '../../service/config/ModuleRegistry';
-import { HeliosRouteUtils } from '../../util/route/HeliosRouteUtils';
 import { HeliosDataBuilder } from '../../util/builder/HeliosDataBuilder';
 import { CsvPreviewDataStream } from '../../stream/data/CsvPreviewDataStream';
 import { CsvPreviewDataStreamBuilder } from '../../util/builder/CsvPreviewDataStreamBuilder';
@@ -286,22 +284,32 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                 const realPath: string = WorkspacePathUtils.getInstance(context).getRealPath(pathParam);
                 fs.stat(realPath, (err: NodeJS.ErrnoException, stats: fs.Stats) => {
                     if (err) {
-                        HeliosLogger.getLogger().error(err.toString());
-                        res.sendStatus(HttpStatusCode.NOT_FOUND);
+                        HttpErrorUtils.processError(
+                            req, res, templateRef, this.ERROR_MEDIATOR.resolvePrevieError, err
+                        );
+                    } else if (stats.isDirectory()) {
+                        const error: any = { code: FileErrorCode.EISDIR };
+                        HttpErrorUtils.processError(
+                            req, res, templateRef, this.ERROR_MEDIATOR.resolvePrevieError, error
+                        );
                     } else {
                         const spi: SpiContext = context.getSpiContext();
                         const processor: Hyperion = this.getPreviewProcessor(context, pathParam);
                         spi.getService(HeliosServiceName.PROCESSOR_REGISTRY)
                             .add(processor, (err: AsteriaException)=> {
                                 if (err) {
-                                    HeliosRouteUtils.closeOnError(res, err, AsteriaErrorCode.PROCESS_FAILURE);
+                                    HttpErrorUtils.processError(
+                                        req, res, templateRef, this.ERROR_MEDIATOR.resolvePrevieError, err
+                                    );
                                 } else {
                                     HeliosRouterLogUtils.logProcessorRegistryInfo(processor, true);
                                     res.on(StreamEventType.FINISH, ()=> {
                                         spi.getService(HeliosServiceName.PROCESSOR_REGISTRY)
                                         .remove(processor, (err: AsteriaException)=> {
                                             if (err) {
-                                                HeliosLogger.getLogger().error(err.toString());
+                                                HttpErrorUtils.processError(
+                                                    req, res, templateRef, this.ERROR_MEDIATOR.resolvePrevieError, err
+                                                );
                                             } else {
                                                 HeliosRouterLogUtils.logProcessorRegistryInfo(processor, false);
                                             }
