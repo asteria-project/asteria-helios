@@ -1,3 +1,4 @@
+import { ApplicationConfig } from 'jsax-rs';
 
 /**
  * The <code>HeliosConfig</code> interface represents the configuration for an Helios server.
@@ -18,4 +19,9 @@ export interface HeliosConfig {
      * The root path to the Helios HTTP API.
      */
     path?: string;
+
+    /**
+     * The HATEOAS configuration of the Helios server instance.
+     */
+    hateoas?: ApplicationConfig;
 }

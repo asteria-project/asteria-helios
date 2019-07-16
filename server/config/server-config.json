@@ -1,4 +1,7 @@
 {
     "port": 3000,
-    "workspace": "workspace"
+    "workspace": "workspace",
+    "hateoas": {
+        "name": "helios"
+    }
 }

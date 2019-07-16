@@ -1,5 +1,6 @@
 import * as path from 'path';
 import { Uuid } from 'asteria-ouranos';
+import { Galaad, ApplicationConfig } from 'jsax-rs';
 import { AbstractAsteriaObject } from 'asteria-gaia';
 import { HeliosContext } from '../HeliosContext';
 import { SpiContext } from '../../spi/SpiContext';
@@ -72,6 +73,8 @@ export class HeliosContextImpl extends AbstractAsteriaObject implements HeliosCo
         this.SERVER = new HeliosServerImpl(this);
         this.WORKSPACE = path.join(process.cwd(), config.workspace);
         this.SPI_CONTEXT = this.initSpiContext(config);
+        const appCfg: ApplicationConfig = config.hateoas || { name: 'helios' };
+        Galaad.getInstance().init(appCfg);
     }
 
     /**
