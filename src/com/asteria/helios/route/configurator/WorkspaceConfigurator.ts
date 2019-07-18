@@ -66,6 +66,11 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
      */
+    @RsState({
+        resource: '/workspace/controller/list',
+        type: StateType.CONTROLLER,
+        method: HttpMethod.POST
+    })
     private listFiles(router: HeliosRouter, context: HeliosContext): void {
         const fileWalker: FileWalker = new FileWalker(context);
         const stateName: string = 'listFiles';
