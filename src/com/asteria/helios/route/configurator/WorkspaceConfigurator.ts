@@ -25,6 +25,7 @@ import { WorkspaceErrorMediator } from '../error/WorkspaceErrorMediator';
 import { BusboyEventType } from '../../lang/enum/BusboyEventType';
 import { FileErrorCode } from '../../lang/enum/FileErrorCode';
 import { HttpErrorUtils } from '../../util/error/HttpErrorUtils';
+import { RsState, StateType, HttpMethod } from 'jsax-rs';
 
 /**
  * The <code>WorkspaceConfigurator</code> class is the <code>HeliosRouteConfigurator</code> implementation to declare 
@@ -49,13 +50,13 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      * @inheritdoc
      */
     public createRoute(router: HeliosRouter, context: HeliosContext): void {
-        this.createListRoute(router, context);
-        this.createPreviewRoute(router, context);
-        this.createUploadFileRoute(router, context);
-        this.createDownloadRoute(router, context);
-        this.createRemoveRoute(router, context);
-        this.createMkdirRoute(router, context);
-        this.createRenameRoute(router, context);
+        this.listFiles(router, context);
+        this.previewCsv(router, context);
+        this.uploadFile(router, context);
+        this.downloadFile(router, context);
+        this.removeFileOrDir(router, context);
+        this.makeDir(router, context);
+        this.renameFileOrDir(router, context);
         this.routeAdded(HeliosRoute.WOKSPACE);
     }
 
@@ -65,8 +66,9 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
      */
-    private createListRoute(router: HeliosRouter, context: HeliosContext): void {
+    private listFiles(router: HeliosRouter, context: HeliosContext): void {
         const fileWalker: FileWalker = new FileWalker(context);
+        const stateName: string = 'listFiles';
         const pathPattern: string = 'POST /workspace/controller/list?path=';
         router.getRouter().post(HeliosRoute.WOKSPACE_CONTROLLER_LIST, (req: Request, res: Response) => {
             const pathParam: string = req.query.path || CommonChar.EMPTY;
@@ -78,7 +80,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                     HttpErrorUtils.processError(req, res, templateRef, this.ERROR_MEDIATOR.resolveListError, error);
                 } else {
                     const result: HeliosData<Array<HeliosFileStats>> = 
-                        HeliosDataBuilder.build<Array<HeliosFileStats>>(context.getId(), statsList);
+                        HeliosDataBuilder.build<Array<HeliosFileStats>>(context.getId(), stateName, statsList);
                     res.send(result);
                 }
             });
@@ -91,8 +93,14 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
      */
-    private createUploadFileRoute(router: HeliosRouter, context: HeliosContext): void {
+    @RsState({
+        resource: '/workspace/controller/upload',
+        type: StateType.CONTROLLER,
+        method: HttpMethod.POST
+    })
+    private uploadFile(router: HeliosRouter, context: HeliosContext): void {
         const pathPattern: string = 'POST /workspace/controller/upload?path=';
+        const stateName: string = 'uploadFile';
         const CONNECTION_CLOSE: any = { 'Connection': 'close' };
         router.getRouter().post(HeliosRoute.WOKSPACE_CONTROLLER_UPLOAD, (req: Request, res: Response) => {
             const pathParam: string = req.query.path || CommonChar.EMPTY;
@@ -136,7 +144,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                                 const heliosFile: HeliosFileStats = 
                                     this.buildFileStats(path.join(pathParam, fileName), stats);
                                 const result: HeliosData<HeliosFileStats> = 
-                                    HeliosDataBuilder.build<HeliosFileStats>(context.getId(), heliosFile);
+                                    HeliosDataBuilder.build<HeliosFileStats>(context.getId(), stateName, heliosFile);
                                 res.end(JSON.stringify(result));
                             }
                         });
@@ -155,8 +163,14 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
      */
-    private createRemoveRoute(router: HeliosRouter, context: HeliosContext): void {
+    @RsState({
+        resource: '/workspace/controller/remove',
+        type: StateType.CONTROLLER,
+        method: HttpMethod.POST
+    })
+    private removeFileOrDir(router: HeliosRouter, context: HeliosContext): void {
         const pathPattern: string = 'POST /workspace/controller/remove?path=';
+        const stateName: string = 'removeFileOrDir';
         router.getRouter().post(HeliosRoute.WOKSPACE_CONTROLLER_REMOVE, (req: Request, res: Response) => {
             const pathParam: string = req.query.path || CommonChar.EMPTY;
             const templateRef: string = pathPattern + pathParam;
@@ -166,7 +180,8 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                 if (error) {
                     HttpErrorUtils.processError(req, res, templateRef, this.ERROR_MEDIATOR.resolveRemoveError, error);
                 } else {
-                    res.status(HttpStatusCode.NO_CONTENT).send(HeliosDataBuilder.build<any>(context.getId(), null));
+                    res.status(HttpStatusCode.NO_CONTENT)
+                       .send(HeliosDataBuilder.build<any>(context.getId(), stateName, null));
                 }
             });
         });
@@ -178,7 +193,12 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
      */
-    private createDownloadRoute(router: HeliosRouter, context: HeliosContext): void {
+    @RsState({
+        resource: '/workspace/controller/download',
+        type: StateType.CONTROLLER,
+        method: HttpMethod.POST
+    })
+    private downloadFile(router: HeliosRouter, context: HeliosContext): void {
         const pathPattern: string = 'POST /workspace/controller/download?path=';
         router.getRouter().post(HeliosRoute.WOKSPACE_CONTROLLER_DOWNLOAD, (req: Request, res: Response) => {
             const pathParam: string = req.query.path || CommonChar.EMPTY;
@@ -210,8 +230,14 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
      */
-    private createMkdirRoute(router: HeliosRouter, context: HeliosContext): void {
+    @RsState({
+        resource: '/workspace/controller/mkdir',
+        type: StateType.CONTROLLER,
+        method: HttpMethod.POST
+    })
+    private makeDir(router: HeliosRouter, context: HeliosContext): void {
         const pathPattern: string = 'POST /workspace/controller/mkdir?path=';
+        const stateName: string = 'makeDir';
         router.getRouter().post(HeliosRoute.WOKSPACE_CONTROLLER_MKDIR, (req: Request, res: Response) => {
             const pathParam: string = req.query.path;
             const templateRef: string = pathPattern + pathParam;
@@ -228,7 +254,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                                     );
                                 } else {
                                     res.status(HttpStatusCode.CREATED)
-                                       .send(HeliosDataBuilder.build<any>(context.getId(), null));
+                                       .send(HeliosDataBuilder.build<any>(context.getId(), stateName, null));
                                 }
                             });
                         } else {
@@ -256,8 +282,14 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
      */
-    private createRenameRoute(router: HeliosRouter, context: HeliosContext): void {
+    @RsState({
+        resource: '/workspace/controller/rename',
+        type: StateType.CONTROLLER,
+        method: HttpMethod.POST
+    })
+    private renameFileOrDir(router: HeliosRouter, context: HeliosContext): void {
         const pathPattern: string = 'POST /workspace/controller/rename?oldPath=&newPath=';
+        const stateName: string = 'renameFileOrDir';
         router.getRouter().post(HeliosRoute.WOKSPACE_CONTROLLER_RENAME, (req: Request, res: Response) => {
             const oldPathParam: string = req.query.oldPath;
             const newPathParam: string = req.query.newPath;
@@ -273,7 +305,8 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                                     req, pathPattern, HttpStatusCode.INTERNAL_SERVER_ERROR, err
                                 );
                             } else {
-                                const result: HeliosData<any> = HeliosDataBuilder.build<any>(context.getId(), null);
+                                const result: HeliosData<any> = 
+                                    HeliosDataBuilder.build<any>(context.getId(), stateName, null);
                                 res.status(HttpStatusCode.NO_CONTENT).send(result);
                             }
                         });
@@ -297,7 +330,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
      */
-    private createPreviewRoute(router: HeliosRouter, context: HeliosContext): void {
+    private previewCsv(router: HeliosRouter, context: HeliosContext): void {
         const pathPattern: string = 'POST /workspace/controller/preview?path=';
         router.getRouter().post(HeliosRoute.WOKSPACE_CONTROLLER_PREVIEW, (req: Request, res: Response) => {
             const pathParam: string = req.query.path;

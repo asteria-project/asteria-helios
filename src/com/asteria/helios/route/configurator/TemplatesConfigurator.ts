@@ -14,6 +14,7 @@ import { HeaderUtils } from '../../util/net/HeaderUtils';
 import { TemplateErrorMediator } from '../error/TemplateErrorMediator';
 import { HttpErrorUtils } from '../../util/error/HttpErrorUtils';
 import { HeliosDataBuilder } from '../../util/builder/HeliosDataBuilder';
+import { RsState, StateType, HttpMethod } from 'jsax-rs';
 
 /**
  * The <code>TemplatesConfigurator</code> class is the <code>HeliosRouteConfigurator</code> implementation to declare 
@@ -38,10 +39,10 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
      * @inheritdoc
      */
     public createRoute(router: HeliosRouter, context: HeliosContext): void {
-        this.createGetTemplatesRoute(router, context);
-        this.createGetTemplateRoute(router, context);
-        this.createPostTemplateRoute(router, context);
-        this.createPutTemplateRoute(router, context);
+        this.getTemplates(router, context);
+        this.getTemplate(router, context);
+        this.createTemplate(router, context);
+        this.updateTemplate(router, context);
         this.routeAdded(HeliosRoute.TEMPLATES);
     }
 
@@ -51,8 +52,14 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
      */
-    private createGetTemplatesRoute(router: HeliosRouter, context: HeliosContext): void {
+    @RsState({
+        resource: '/templates',
+        type: StateType.COLLECTION,
+        method: HttpMethod.GET
+    })
+    private getTemplates(router: HeliosRouter, context: HeliosContext): void {
         const pathPattern: string = 'GET /templates';
+        const stateName: string = 'getTemplates';
         router.getRouter().get(HeliosRoute.TEMPLATES, (req: Request, res: Response) => {
             HeliosRouterLogUtils.logRoute(req, pathPattern);
             const registry: TemplateRegistry = context.getSpiContext().getService(HeliosServiceName.TEMPLATE_REGISTRY);
@@ -63,7 +70,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
                     );
                 } else {
                     const result: HeliosData<Array<HeliosTemplate>> =
-                        HeliosDataBuilder.build<Array<HeliosTemplate>>(context.getId(), templates);
+                        HeliosDataBuilder.build<Array<HeliosTemplate>>(context.getId(), stateName, templates);
                     res.send(result);
                 }
             });
@@ -76,8 +83,14 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
      */
-    private createGetTemplateRoute(router: HeliosRouter, context: HeliosContext): void {
+    @RsState({
+        resource: '/templates/:id',
+        type: StateType.COLLECTION,
+        method: HttpMethod.GET
+    })
+    private getTemplate(router: HeliosRouter, context: HeliosContext): void {
         const pathPattern: string = 'GET /templates/';
+        const stateName: string = 'getTemplate';
         router.getRouter().get(HeliosRoute.TEMPLATES_ID, (req: Request, res: Response) => {
             const id: string = req.params.id;
             const templateRef: string = pathPattern + id;
@@ -91,7 +104,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
                 } else {
                     if (template) {
                         const result: HeliosData<HeliosTemplate> =
-                            HeliosDataBuilder.build<HeliosTemplate>(context.getId(), template);
+                            HeliosDataBuilder.build<HeliosTemplate>(context.getId(), stateName, template);
                         res.send(result);
                     } else {
                         res.sendStatus(HttpStatusCode.NOT_FOUND);
@@ -107,8 +120,14 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
      */
-    private createPostTemplateRoute(router: HeliosRouter, context: HeliosContext): void {
+    @RsState({
+        resource: '/templates',
+        type: StateType.COLLECTION,
+        method: HttpMethod.POST
+    })
+    private createTemplate(router: HeliosRouter, context: HeliosContext): void {
         const pathPattern: string = 'POST /templates';
+        const stateName: string = 'createTemplate';
         router.getRouter().post(HeliosRoute.TEMPLATES, (req: Request, res: Response) => {
             HeliosRouterLogUtils.logRoute(req, pathPattern);
             const registry: TemplateRegistry = context.getSpiContext().getService(HeliosServiceName.TEMPLATE_REGISTRY);
@@ -121,7 +140,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
                 } else {
                     const id: string = template.id;
                     HeaderUtils.setLocation(context, res, `${HeliosRoute.TEMPLATES}/${id}`);
-                    const result: HeliosData<string> = HeliosDataBuilder.build<string>(context.getId(), id);
+                    const result: HeliosData<string> = HeliosDataBuilder.build<string>(context.getId(), stateName, id);
                     res.status(HttpStatusCode.CREATED).send(result);
                 }
             });
@@ -134,8 +153,14 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
      */
-    private createPutTemplateRoute(router: HeliosRouter, context: HeliosContext): void {
-        const pathPattern: string = 'PUT /templates/';
+    @RsState({
+        resource: '/templates',
+        type: StateType.COLLECTION,
+        method: HttpMethod.PUT
+    })
+    private updateTemplate(router: HeliosRouter, context: HeliosContext): void {
+        const pathPattern: string = 'PUT /templates';
+        const stateName: string = 'updateTemplate';
         router.getRouter().put(HeliosRoute.TEMPLATES_ID, (req: Request, res: Response) => {
             const id: string = req.params.id;
             const templateRef: string = pathPattern + id;
@@ -158,7 +183,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
                                 );
                             } else {
                                 res.status(HttpStatusCode.NO_CONTENT)
-                                   .send(HeliosDataBuilder.build<any>(context.getId(), null));
+                                   .send(HeliosDataBuilder.build<any>(context.getId(),stateName,  null));
                             }
                         });
                     } else {

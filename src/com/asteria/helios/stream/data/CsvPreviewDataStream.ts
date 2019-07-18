@@ -4,6 +4,7 @@ import { CronosTransformStream } from 'asteria-cronos';
 import { HeliosData, HeliosCsvPreview } from 'asteria-eos';
 import { HeliosDataBuilder } from '../../util/builder/HeliosDataBuilder';
 import { CsvPreviewDataStreamConfig } from '../../lang/file/CsvPreviewDataStreamConfig';
+import { RsState, StateType, HttpMethod } from 'jsax-rs';
 
 /**
  * The <code>CsvPreviewDataStream</code> class is a transformation stream that create the content preview of a CSV file.
@@ -14,6 +15,11 @@ export class CsvPreviewDataStream extends CronosTransformStream implements Aster
      * The  config object for this <code>CsvPreviewDataStream</code> instance.
      */
     private _config: CsvPreviewDataStreamConfig = null;
+
+    /**
+     * The reference to the "previewCsv" application state.
+     */
+    private readonly STATE_NAME: string = 'previewCsv';
 
     /**
      * Create a new <code>CsvPreviewDataStream</code> instance.
@@ -34,13 +40,20 @@ export class CsvPreviewDataStream extends CronosTransformStream implements Aster
     /**
      * @inheritdoc
      */
+    @RsState({
+        name: 'previewCsv',
+        resource: '/workspace/controller/preview',
+        type: StateType.CONTROLLER,
+        method: HttpMethod.POST
+    })
     public transform(chunk: any): void {
         const input: string = CommonChar.EMPTY + chunk;
         const data: HeliosCsvPreview = {
             stats: this._config.stats,
             content: input
         };
-        const heliosData: HeliosData<HeliosCsvPreview> = HeliosDataBuilder.build(this._config.serverId, data);
+        const heliosData: HeliosData<HeliosCsvPreview> =
+            HeliosDataBuilder.build(this._config.serverId, this.STATE_NAME, data);
         const result: string = JSON.stringify(heliosData);
         this.onComplete(null, result);
     }

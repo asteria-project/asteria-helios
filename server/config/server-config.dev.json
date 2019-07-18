@@ -2,6 +2,8 @@
     "port": 3000,
     "workspace": "workspace",
     "hateoas": {
-        "name": "helios"
+        "name": "helios",
+        "apiPath": "asteria",
+        "version": "1.0.0"
     }
 }
