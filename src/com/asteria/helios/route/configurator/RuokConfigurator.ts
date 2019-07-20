@@ -47,7 +47,7 @@ export class RuokConfigurator extends AbstractHeliosRouteConfigurator implements
         const message: string = 'I\'m still alive!';
         router.getRouter().get(HeliosRoute.RUOK, (req: Request, res: Response) => {
             HeliosRouterLogUtils.logRoute(req, pathPattern);
-            const result: HeliosData<string> =  HeliosDataBuilder.build<string>(context.getId(), stateName, message);
+            const result: HeliosData<string> =  HeliosDataBuilder.build<string>(context.getId(), message, stateName);
             res.send(result);
         });
     }

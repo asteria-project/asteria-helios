@@ -10,13 +10,15 @@ export class HeliosDataBuilder {
      * Return a new <code>HeliosData</code> object built from the specified parameters.
      * 
      * @param {string} serverId the ID of the current Helios server instance.
-     * @param {string} stateRef the HATEOAS state associated with the new <code>HeliosData</code> object.
      * @param {T} data the data associated with the new <code>HeliosData</code> object.
+     * @param {string} stateRef the HATEOAS state associated with the new <code>HeliosData</code> object.
+     * @param {{ [name: string]: any }} parameters the optional segment values of the associated state path.
      * 
      * @returns {HeliosData<T>} a new <code>HeliosData</code> object.
      */
-    public static build<T>(serverId: string, stateRef: string, data: T): HeliosData<T> {
-        const appState: Application = Galaad.getInstance().getContext().getApplicationState(stateRef);
+    public static build<T>(serverId: string, data: T, stateRef: string,
+                           parameters?: { [name: string]: any }): HeliosData<T> {
+        const appState: Application = Galaad.getInstance().getContext().getApplicationState(stateRef, parameters);
         const result: HeliosData<T> = {
             serverId: serverId,
             data: data,

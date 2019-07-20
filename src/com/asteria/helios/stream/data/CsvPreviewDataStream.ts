@@ -52,7 +52,7 @@ export class CsvPreviewDataStream extends CronosTransformStream implements Aster
             content: input
         };
         const heliosData: HeliosData<HeliosCsvPreview> =
-            HeliosDataBuilder.build(this._config.serverId, this.STATE_NAME, data);
+            HeliosDataBuilder.build(this._config.serverId, data, this.STATE_NAME);
         const result: string = JSON.stringify(heliosData);
         this.onComplete(null, result);
     }

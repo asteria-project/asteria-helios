@@ -78,7 +78,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
                     );
                 } else {
                     const result: HeliosData<Array<HeliosTemplate>> =
-                        HeliosDataBuilder.build<Array<HeliosTemplate>>(context.getId(), stateName, templates);
+                        HeliosDataBuilder.build<Array<HeliosTemplate>>(context.getId(), templates, stateName);
                     res.send(result);
                 }
             });
@@ -111,8 +111,9 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
                     );
                 } else {
                     if (template) {
-                        const result: HeliosData<HeliosTemplate> =
-                            HeliosDataBuilder.build<HeliosTemplate>(context.getId(), stateName, template);
+                        const result: HeliosData<HeliosTemplate> = HeliosDataBuilder.build<HeliosTemplate>(
+                            context.getId(), template, stateName, { 'id': id }
+                        );
                         res.send(result);
                     } else {
                         res.sendStatus(HttpStatusCode.NOT_FOUND);
@@ -149,7 +150,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
                 } else {
                     const id: string = template.id;
                     HeaderUtils.setLocation(context, res, `${HeliosRoute.TEMPLATES}/${id}`);
-                    const result: HeliosData<string> = HeliosDataBuilder.build<string>(context.getId(), stateName, id);
+                    const result: HeliosData<string> = HeliosDataBuilder.build<string>(context.getId(), id, stateName);
                     res.status(HttpStatusCode.CREATED).send(result);
                 }
             });
@@ -192,7 +193,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
                                     req, res, templateRef, this.ERROR_MEDIATOR.resolveTemplatesError, err
                                 );
                             } else {
-                                res.send(HeliosDataBuilder.build<any>(context.getId(),stateName,  null));
+                                res.send(HeliosDataBuilder.build<any>(context.getId(), null, stateName));
                             }
                         });
                     } else {

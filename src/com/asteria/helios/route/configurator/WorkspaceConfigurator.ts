@@ -93,7 +93,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                     HttpErrorUtils.processError(req, res, templateRef, this.ERROR_MEDIATOR.resolveListError, error);
                 } else {
                     const result: HeliosData<Array<HeliosFileStats>> = 
-                        HeliosDataBuilder.build<Array<HeliosFileStats>>(context.getId(), stateName, statsList);
+                        HeliosDataBuilder.build<Array<HeliosFileStats>>(context.getId(), statsList, stateName);
                     res.send(result);
                 }
             });
@@ -157,7 +157,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                                 const heliosFile: HeliosFileStats = 
                                     this.buildFileStats(path.join(pathParam, fileName), stats);
                                 const result: HeliosData<HeliosFileStats> = 
-                                    HeliosDataBuilder.build<HeliosFileStats>(context.getId(), stateName, heliosFile);
+                                    HeliosDataBuilder.build<HeliosFileStats>(context.getId(), heliosFile, stateName);
                                 res.end(JSON.stringify(result));
                             }
                         });
@@ -193,7 +193,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                 if (error) {
                     HttpErrorUtils.processError(req, res, templateRef, this.ERROR_MEDIATOR.resolveRemoveError, error);
                 } else {
-                    res.send(HeliosDataBuilder.build<any>(context.getId(), stateName, null));
+                    res.send(HeliosDataBuilder.build<any>(context.getId(), null, stateName));
                 }
             });
         });
@@ -266,7 +266,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                                     );
                                 } else {
                                     res.status(HttpStatusCode.CREATED)
-                                       .send(HeliosDataBuilder.build<any>(context.getId(), stateName, null));
+                                       .send(HeliosDataBuilder.build<any>(context.getId(), null, stateName));
                                 }
                             });
                         } else {
@@ -318,7 +318,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                                 );
                             } else {
                                 const result: HeliosData<any> = 
-                                    HeliosDataBuilder.build<any>(context.getId(), stateName, null);
+                                    HeliosDataBuilder.build<any>(context.getId(), null, stateName);
                                 res.status(HttpStatusCode.NO_CONTENT).send(result);
                             }
                         });
