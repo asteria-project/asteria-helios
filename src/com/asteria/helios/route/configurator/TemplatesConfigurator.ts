@@ -14,13 +14,22 @@ import { HeaderUtils } from '../../util/net/HeaderUtils';
 import { TemplateErrorMediator } from '../error/TemplateErrorMediator';
 import { HttpErrorUtils } from '../../util/error/HttpErrorUtils';
 import { HeliosDataBuilder } from '../../util/builder/HeliosDataBuilder';
-import { RsState, StateType, HttpMethod } from 'jsax-rs';
+import { RsState, StateType, HttpMethod, RsTransition, TransitionConfig, RsMapTransition } from 'jsax-rs';
 
 /**
  * The <code>TemplatesConfigurator</code> class is the <code>HeliosRouteConfigurator</code> implementation to declare 
  * the Helios <code>/templates</code> route.
  */
 export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator implements HeliosRouteConfigurator {
+
+    /**
+     * Transition declaration of the "/workspace/controller/list" resource path.
+     */
+    @RsTransition({
+        resource: '/templates',
+        type: StateType.COLLECTION
+    })
+    public readonly getTemplatesTransition: TransitionConfig;
 
     /**
      * The reference to the object that manages errors for this route configurator.
@@ -47,15 +56,14 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
     }
 
     /**
-     * Create the route for the <code>/templates</code> path and the HTTP <code>GET</code> method.
+     * Create the route for the <code>/templates</code> resource path and the HTTP <code>GET</code> method.
      * 
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     @RsState({
         resource: '/templates',
-        type: StateType.COLLECTION,
-        method: HttpMethod.GET
+        type: StateType.COLLECTION
     })
     private getTemplates(router: HeliosRouter, context: HeliosContext): void {
         const pathPattern: string = 'GET /templates';
@@ -78,16 +86,16 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
     }
 
     /**
-     * Create the route for the <code>/templates/:id</code> path and the HTTP <code>GET</code> method.
+     * Create the route for the <code>/templates/:id</code> resource path and the HTTP <code>GET</code> method.
      * 
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     @RsState({
         resource: '/templates/:id',
-        type: StateType.COLLECTION,
-        method: HttpMethod.GET
+        type: StateType.COLLECTION
     })
+    @RsMapTransition('getTemplatesTransition')
     private getTemplate(router: HeliosRouter, context: HeliosContext): void {
         const pathPattern: string = 'GET /templates/';
         const stateName: string = 'getTemplate';
@@ -115,7 +123,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
     }
     
     /**
-     * Create the route for the <code>/templates</code> path and the HTTP <code>POST</code> method.
+     * Create the route for the <code>/templates</code> resource path and the HTTP <code>POST</code> method.
      * 
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
@@ -125,6 +133,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
         type: StateType.COLLECTION,
         method: HttpMethod.POST
     })
+    @RsMapTransition('getTemplatesTransition')
     private createTemplate(router: HeliosRouter, context: HeliosContext): void {
         const pathPattern: string = 'POST /templates';
         const stateName: string = 'createTemplate';
@@ -148,7 +157,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
     }
 
     /**
-     * Create the route for the <code>/templates</code> path and the HTTP <code>PUT</code> method.
+     * Create the route for the <code>/templates</code> resource path and the HTTP <code>PUT</code> method.
      * 
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
@@ -158,6 +167,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
         type: StateType.COLLECTION,
         method: HttpMethod.PUT
     })
+    @RsMapTransition('getTemplatesTransition')
     private updateTemplate(router: HeliosRouter, context: HeliosContext): void {
         const pathPattern: string = 'PUT /templates';
         const stateName: string = 'updateTemplate';
@@ -182,8 +192,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
                                     req, res, templateRef, this.ERROR_MEDIATOR.resolveTemplatesError, err
                                 );
                             } else {
-                                res.status(HttpStatusCode.NO_CONTENT)
-                                   .send(HeliosDataBuilder.build<any>(context.getId(),stateName,  null));
+                                res.send(HeliosDataBuilder.build<any>(context.getId(),stateName,  null));
                             }
                         });
                     } else {

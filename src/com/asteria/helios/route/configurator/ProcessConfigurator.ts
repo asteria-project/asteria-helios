@@ -35,7 +35,7 @@ export class ProcessConfigurator extends AbstractHeliosRouteConfigurator impleme
     }
     
     /**
-     * Create the route for the <code>/process/controller/run</code> path.
+     * Create the route for the <code>/process/controller/run</code> resource path.
      * 
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.

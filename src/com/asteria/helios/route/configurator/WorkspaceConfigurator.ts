@@ -25,13 +25,22 @@ import { WorkspaceErrorMediator } from '../error/WorkspaceErrorMediator';
 import { BusboyEventType } from '../../lang/enum/BusboyEventType';
 import { FileErrorCode } from '../../lang/enum/FileErrorCode';
 import { HttpErrorUtils } from '../../util/error/HttpErrorUtils';
-import { RsState, StateType, HttpMethod } from 'jsax-rs';
+import { RsState, StateType, RsMapTransition, TransitionConfig, RsTransition } from 'jsax-rs';
 
 /**
  * The <code>WorkspaceConfigurator</code> class is the <code>HeliosRouteConfigurator</code> implementation to declare 
  * the Helios <code>/workspace</code> route.
  */
 export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator implements HeliosRouteConfigurator {
+
+    /**
+     * Transition declaration of the "/workspace/controller/list" resource path.
+     */
+    @RsTransition({
+        resource: '/workspace/controller/list',
+        type: StateType.CONTROLLER
+    })
+    public readonly listFileTransition: TransitionConfig;
 
     /**
      * The reference to the object that manages errors for this route configurator.
@@ -61,15 +70,14 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
     }
 
     /**
-     * Create the route for the <code>/workspace/controller/list</code> path.
+     * Create the route for the <code>/workspace/controller/list</code> resource path.
      * 
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     @RsState({
         resource: '/workspace/controller/list',
-        type: StateType.CONTROLLER,
-        method: HttpMethod.POST
+        type: StateType.CONTROLLER
     })
     private listFiles(router: HeliosRouter, context: HeliosContext): void {
         const fileWalker: FileWalker = new FileWalker(context);
@@ -93,16 +101,16 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
     }
 
     /**
-     * Create the route for the <code>/workspace/controller/upload</code> path.
+     * Create the route for the <code>/workspace/controller/upload</code> resource path.
      * 
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     @RsState({
         resource: '/workspace/controller/upload',
-        type: StateType.CONTROLLER,
-        method: HttpMethod.POST
+        type: StateType.CONTROLLER
     })
+    @RsMapTransition('listFileTransition')
     private uploadFile(router: HeliosRouter, context: HeliosContext): void {
         const pathPattern: string = 'POST /workspace/controller/upload?path=';
         const stateName: string = 'uploadFile';
@@ -163,16 +171,16 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
     }
     
     /**
-     * Create the route for the <code>/workspace/controller/remove</code> path.
+     * Create the route for the <code>/workspace/controller/remove</code> resource path.
      * 
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     @RsState({
         resource: '/workspace/controller/remove',
-        type: StateType.CONTROLLER,
-        method: HttpMethod.POST
+        type: StateType.CONTROLLER
     })
+    @RsMapTransition('listFileTransition')
     private removeFileOrDir(router: HeliosRouter, context: HeliosContext): void {
         const pathPattern: string = 'POST /workspace/controller/remove?path=';
         const stateName: string = 'removeFileOrDir';
@@ -185,24 +193,23 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                 if (error) {
                     HttpErrorUtils.processError(req, res, templateRef, this.ERROR_MEDIATOR.resolveRemoveError, error);
                 } else {
-                    res.status(HttpStatusCode.NO_CONTENT)
-                       .send(HeliosDataBuilder.build<any>(context.getId(), stateName, null));
+                    res.send(HeliosDataBuilder.build<any>(context.getId(), stateName, null));
                 }
             });
         });
     }
 
     /**
-     * Create the route for the <code>/workspace/controller/download</code> path.
+     * Create the route for the <code>/workspace/controller/download</code> resource path.
      * 
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     @RsState({
         resource: '/workspace/controller/download',
-        type: StateType.CONTROLLER,
-        method: HttpMethod.POST
+        type: StateType.CONTROLLER
     })
+    @RsMapTransition('listFileTransition')
     private downloadFile(router: HeliosRouter, context: HeliosContext): void {
         const pathPattern: string = 'POST /workspace/controller/download?path=';
         router.getRouter().post(HeliosRoute.WOKSPACE_CONTROLLER_DOWNLOAD, (req: Request, res: Response) => {
@@ -230,16 +237,16 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
     }
 
     /**
-     * Create the route for the <code>/workspace/controller/mkdir</code> path.
+     * Create the route for the <code>/workspace/controller/mkdir</code> resource path.
      * 
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     @RsState({
         resource: '/workspace/controller/mkdir',
-        type: StateType.CONTROLLER,
-        method: HttpMethod.POST
+        type: StateType.CONTROLLER
     })
+    @RsMapTransition('listFileTransition')
     private makeDir(router: HeliosRouter, context: HeliosContext): void {
         const pathPattern: string = 'POST /workspace/controller/mkdir?path=';
         const stateName: string = 'makeDir';
@@ -282,16 +289,16 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
     }
 
     /**
-     * Create the route for the <code>/workspace/controller/rename</code> path.
+     * Create the route for the <code>/workspace/controller/rename</code> resource path.
      * 
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     @RsState({
         resource: '/workspace/controller/rename',
-        type: StateType.CONTROLLER,
-        method: HttpMethod.POST
+        type: StateType.CONTROLLER
     })
+    @RsMapTransition('listFileTransition')
     private renameFileOrDir(router: HeliosRouter, context: HeliosContext): void {
         const pathPattern: string = 'POST /workspace/controller/rename?oldPath=&newPath=';
         const stateName: string = 'renameFileOrDir';
@@ -330,7 +337,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
     }
 
     /**
-     * Create the route for the <code>/workspace/controller/preview/</code> path.
+     * Create the route for the <code>/workspace/controller/preview/</code> resource path.
      * 
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
@@ -391,7 +398,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
     }
 
     /**
-     * Create the preview processor for the specified file path.
+     * Create the preview processor for the specified file resource path.
      * 
      * @param {HeliosContext} context the reference to context for this Helios server instance.
      * @param {string} filePath the file path for which to get the preview.

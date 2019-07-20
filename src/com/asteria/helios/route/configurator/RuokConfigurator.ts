@@ -7,7 +7,7 @@ import { HeliosRouterLogUtils } from '../../util/route/HeliosRouterLogUtils';
 import { AbstractHeliosRouteConfigurator } from './AbstractHeliosRouteConfigurator';
 import { HeliosData } from 'asteria-eos';
 import { HeliosDataBuilder } from '../../util/builder/HeliosDataBuilder';
-import { RsState, StateType, HttpMethod } from 'jsax-rs';
+import { RsState, StateType, HttpMethod, RsTransition } from 'jsax-rs';
 
 /**
  * The <code>RuokConfigurator</code> class is the <code>HeliosRouteConfigurator</code> implementation to declare the
@@ -22,16 +22,26 @@ export class RuokConfigurator extends AbstractHeliosRouteConfigurator implements
         super('ruok');
     }
 
+    public createRoute(router: HeliosRouter, context: HeliosContext): void {
+        this.ruok(router, context);
+        this.routeAdded(HeliosRoute.RUOK);
+    }
+    
     /**
-     * @inheritdoc
+     * Create the route for the <code>/ruok</code> resource path.
+     * 
+     * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
+     * @param {HeliosContext} context the reference to the Helios server context.
      */
     @RsState({
-        name: 'ruok',
         resource: '/ruok',
-        type: StateType.INVARIANT,
-        method: HttpMethod.GET
+        type: StateType.INVARIANT
     })
-    public createRoute(router: HeliosRouter, context: HeliosContext): void {
+    @RsTransition({
+        type: StateType.COLLECTION,
+        resource: '/jobs'
+    })
+    private ruok(router: HeliosRouter, context: HeliosContext): void {
         const pathPattern: string = 'GET /ruok';
         const stateName: string = 'ruok';
         const message: string = 'I\'m still alive!';
@@ -40,6 +50,5 @@ export class RuokConfigurator extends AbstractHeliosRouteConfigurator implements
             const result: HeliosData<string> =  HeliosDataBuilder.build<string>(context.getId(), stateName, message);
             res.send(result);
         });
-       this.routeAdded(HeliosRoute.RUOK);
     }
 }

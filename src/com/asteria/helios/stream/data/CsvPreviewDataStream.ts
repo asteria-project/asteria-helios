@@ -4,7 +4,7 @@ import { CronosTransformStream } from 'asteria-cronos';
 import { HeliosData, HeliosCsvPreview } from 'asteria-eos';
 import { HeliosDataBuilder } from '../../util/builder/HeliosDataBuilder';
 import { CsvPreviewDataStreamConfig } from '../../lang/file/CsvPreviewDataStreamConfig';
-import { RsState, StateType, HttpMethod } from 'jsax-rs';
+import { RsState, StateType } from 'jsax-rs';
 
 /**
  * The <code>CsvPreviewDataStream</code> class is a transformation stream that create the content preview of a CSV file.
@@ -43,8 +43,7 @@ export class CsvPreviewDataStream extends CronosTransformStream implements Aster
     @RsState({
         name: 'previewCsv',
         resource: '/workspace/controller/preview',
-        type: StateType.CONTROLLER,
-        method: HttpMethod.POST
+        type: StateType.CONTROLLER
     })
     public transform(chunk: any): void {
         const input: string = CommonChar.EMPTY + chunk;

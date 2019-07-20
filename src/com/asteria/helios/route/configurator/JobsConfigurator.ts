@@ -27,7 +27,7 @@ export class JobsConfigurator extends AbstractHeliosRouteConfigurator implements
     }
     
     /**
-     * Create the route for the <code>/jobs</code> path and the HTTP <code>GTE</code> method.
+     * Create the route for the <code>/jobs</code> resource path and the HTTP <code>GET</code> method.
      * 
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
