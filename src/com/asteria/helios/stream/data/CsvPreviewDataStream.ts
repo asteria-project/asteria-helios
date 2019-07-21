@@ -42,7 +42,7 @@ export class CsvPreviewDataStream extends CronosTransformStream implements Aster
      */
     @RsState({
         name: 'previewCsv',
-        resource: '/workspace/controller/preview',
+        resource: '/workspace/controller/preview?:path',
         type: StateType.CONTROLLER
     })
     public transform(chunk: any): void {
@@ -51,8 +51,9 @@ export class CsvPreviewDataStream extends CronosTransformStream implements Aster
             stats: this._config.stats,
             content: input
         };
-        const heliosData: HeliosData<HeliosCsvPreview> =
-            HeliosDataBuilder.build(this._config.serverId, data, this.STATE_NAME);
+        const heliosData: HeliosData<HeliosCsvPreview> = HeliosDataBuilder.build(
+            this._config.serverId, data, this.STATE_NAME, { path: this._config.path }
+        );
         const result: string = JSON.stringify(heliosData);
         this.onComplete(null, result);
     }

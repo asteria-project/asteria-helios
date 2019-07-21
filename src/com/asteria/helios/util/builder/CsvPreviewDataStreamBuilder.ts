@@ -14,16 +14,18 @@ export class CsvPreviewDataStreamBuilder {
      * @param {HeliosContext} heliosContext the context of the current Helios server instance.
      * @param {AsteriaContext} asteriaContext the context of the <code>Hyperion</code> instance that processes data.
      * @param {HeliosFileStats} stats the stats of the processed file.
+     * @param {string} path the path to the processed file.
      * 
      * @returns {CsvPreviewDataStream} a new <code>CsvPreviewDataStream</code> object.
      */
     public static build(heliosContext: HeliosContext, asteriaContext: AsteriaContext,
-                        stats: HeliosFileStats): CsvPreviewDataStream {
+                        stats: HeliosFileStats, path: string): CsvPreviewDataStream {
         const dataStream: CsvPreviewDataStream = new CsvPreviewDataStream();
         dataStream.init(
             {
                 serverId: heliosContext.getId(),
-                stats: stats
+                stats: stats,
+                path: path
             },
             asteriaContext
         );

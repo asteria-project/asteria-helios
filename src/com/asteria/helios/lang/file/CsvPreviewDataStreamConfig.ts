@@ -16,4 +16,9 @@ export interface CsvPreviewDataStreamConfig extends StreamProcessConfig {
      * The stats object of the associated file.
      */
     stats: HeliosFileStats;
+
+    /**
+     * The path to the file to process.
+     */
+    path: string;
 }

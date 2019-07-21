@@ -112,7 +112,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
                 } else {
                     if (template) {
                         const result: HeliosData<HeliosTemplate> = HeliosDataBuilder.build<HeliosTemplate>(
-                            context.getId(), template, stateName, { 'id': id }
+                            context.getId(), template, stateName, { id: id }
                         );
                         res.send(result);
                     } else {

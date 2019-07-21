@@ -76,7 +76,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     @RsState({
-        resource: '/workspace/controller/list',
+        resource: '/workspace/controller/list?:path',
         type: StateType.CONTROLLER
     })
     private listFiles(router: HeliosRouter, context: HeliosContext): void {
@@ -92,8 +92,9 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                 if (error) {
                     HttpErrorUtils.processError(req, res, templateRef, this.ERROR_MEDIATOR.resolveListError, error);
                 } else {
-                    const result: HeliosData<Array<HeliosFileStats>> = 
-                        HeliosDataBuilder.build<Array<HeliosFileStats>>(context.getId(), statsList, stateName);
+                    const result: HeliosData<Array<HeliosFileStats>> = HeliosDataBuilder.build<Array<HeliosFileStats>>(
+                        context.getId(), statsList, stateName, { path: pathParam }
+                    );
                     res.send(result);
                 }
             });
@@ -107,7 +108,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     @RsState({
-        resource: '/workspace/controller/upload',
+        resource: '/workspace/controller/upload?:path',
         type: StateType.CONTROLLER
     })
     @RsMapTransition('listFileTransition')
@@ -156,8 +157,9 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                                 res.writeHead(HttpStatusCode.OK, CONNECTION_CLOSE);
                                 const heliosFile: HeliosFileStats = 
                                     this.buildFileStats(path.join(pathParam, fileName), stats);
-                                const result: HeliosData<HeliosFileStats> = 
-                                    HeliosDataBuilder.build<HeliosFileStats>(context.getId(), heliosFile, stateName);
+                                const result: HeliosData<HeliosFileStats> = HeliosDataBuilder.build<HeliosFileStats>(
+                                    context.getId(), heliosFile, stateName, { path: pathParam }
+                                );
                                 res.end(JSON.stringify(result));
                             }
                         });
@@ -177,7 +179,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     @RsState({
-        resource: '/workspace/controller/remove',
+        resource: '/workspace/controller/remove?:path',
         type: StateType.CONTROLLER
     })
     @RsMapTransition('listFileTransition')
@@ -193,7 +195,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                 if (error) {
                     HttpErrorUtils.processError(req, res, templateRef, this.ERROR_MEDIATOR.resolveRemoveError, error);
                 } else {
-                    res.send(HeliosDataBuilder.build<any>(context.getId(), null, stateName));
+                    res.send(HeliosDataBuilder.build<any>(context.getId(), null, stateName, { path: pathParam }));
                 }
             });
         });
@@ -243,7 +245,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     @RsState({
-        resource: '/workspace/controller/mkdir',
+        resource: '/workspace/controller/mkdir?:path',
         type: StateType.CONTROLLER
     })
     @RsMapTransition('listFileTransition')
@@ -266,7 +268,11 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                                     );
                                 } else {
                                     res.status(HttpStatusCode.CREATED)
-                                       .send(HeliosDataBuilder.build<any>(context.getId(), null, stateName));
+                                       .send(
+                                            HeliosDataBuilder.build<any>(
+                                               context.getId(), null, stateName, { path: pathParam }
+                                            )
+                                        );
                                 }
                             });
                         } else {
@@ -295,7 +301,7 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      * @param {HeliosContext} context the reference to the Helios server context.
      */
     @RsState({
-        resource: '/workspace/controller/rename',
+        resource: '/workspace/controller/rename?:oldPath&:newPath',
         type: StateType.CONTROLLER
     })
     @RsMapTransition('listFileTransition')
@@ -317,8 +323,9 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                                     req, pathPattern, HttpStatusCode.INTERNAL_SERVER_ERROR, err
                                 );
                             } else {
-                                const result: HeliosData<any> = 
-                                    HeliosDataBuilder.build<any>(context.getId(), null, stateName);
+                                const result: HeliosData<any> = HeliosDataBuilder.build<any>(
+                                    context.getId(), null, stateName, { oldPath: oldPathParam, newPath: newPathParam }
+                                );
                                 res.status(HttpStatusCode.NO_CONTENT).send(result);
                             }
                         });
@@ -384,8 +391,9 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
                                         });
                                     });
                                     const fileStats: HeliosFileStats = this.buildFileStats(pathParam, stats);
-                                    const dataStream: CsvPreviewDataStream = 
-                                        CsvPreviewDataStreamBuilder.build(context, processor.getContext(), fileStats);
+                                    const dataStream: CsvPreviewDataStream = CsvPreviewDataStreamBuilder.build(
+                                        context, processor.getContext(), fileStats, pathParam
+                                    );
                                     (processor.run() as any).pipe(dataStream).pipe(res);
                                 }
                             });
