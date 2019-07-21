@@ -18,7 +18,9 @@ export class HeliosDataBuilder {
      */
     public static build<T>(serverId: string, data: T, stateRef: string,
                            parameters?: { [name: string]: any }): HeliosData<T> {
-        const appState: Application = Galaad.getInstance().getContext().getApplicationState(stateRef, parameters);
+        const appState: Application = Galaad.getInstance()
+                                            .getContext()
+                                            .getApplicationStateRepresentation(stateRef, parameters);
         const result: HeliosData<T> = {
             serverId: serverId,
             data: data,
