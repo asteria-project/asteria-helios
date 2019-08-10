@@ -24,7 +24,7 @@
     "cors": "^2.8.5",
     "express": "^4.16.4",
     "helmet": "^3.18.0",
-    "jsax-rs": "0.1.0"
+    "jsax-rs": "1.0.0"
   },
   "devDependencies": {
     "@types/body-parser": "^1.17.0",

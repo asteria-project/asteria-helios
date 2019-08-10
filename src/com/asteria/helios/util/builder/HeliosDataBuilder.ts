@@ -1,5 +1,5 @@
 import { HeliosData } from 'asteria-eos';
-import { Application, Galaad } from 'jsax-rs';
+import { Galaad } from 'jsax-rs';
 
 /**
  * A static builder that provides methods for creating new <code>HeliosData</code> objects.
@@ -18,14 +18,14 @@ export class HeliosDataBuilder {
      */
     public static build<T>(serverId: string, data: T, stateRef: string,
                            parameters?: { [name: string]: any }): HeliosData<T> {
-        const appState: Application = Galaad.getInstance()
-                                            .getContext()
-                                            .getApplicationStateRepresentation(stateRef, parameters);
+        const state: any = Galaad.getInstance()
+                                 .getContext()
+                                 .getResourceStateRepresentation(stateRef, parameters);
         const result: HeliosData<T> = {
             serverId: serverId,
             data: data,
             birthtime: Date.now(),
-            application: appState
+            application: state
         };
         return result;
     }
