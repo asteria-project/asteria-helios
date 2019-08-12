@@ -34,7 +34,7 @@ export class ProcessorRegistryIM extends AbstractAsteriaRegistryAsync<Hyperion> 
         this.MAP.delete(processor.getContext().getId());
         callback(null);
     }
-
+    
     /**
      * @inheritdoc
      */

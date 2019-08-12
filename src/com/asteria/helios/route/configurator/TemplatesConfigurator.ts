@@ -5,7 +5,7 @@ import { HeliosRouter } from '../HeliosRouter';
 import { HeliosRoute } from '../HeliosRoute';
 import { HeliosRouterLogUtils } from '../../util/route/HeliosRouterLogUtils';
 import { TemplateRegistry } from '../../service/data/TemplateRegistry';
-import { AsteriaException, HttpStatusCode } from 'asteria-gaia';
+import { AsteriaException } from 'asteria-gaia';
 import { HeliosTemplate, HeliosData } from 'asteria-eos';
 import { HeliosTemplateBuilder } from '../../util/builder/HeliosTemplateBuilder';
 import { HeliosServiceName } from '../../core/HeliosServiceName';
@@ -14,7 +14,7 @@ import { HeaderUtils } from '../../util/net/HeaderUtils';
 import { TemplateErrorMediator } from '../error/TemplateErrorMediator';
 import { HttpErrorUtils } from '../../util/error/HttpErrorUtils';
 import { HeliosDataBuilder } from '../../util/builder/HeliosDataBuilder';
-import { RsState, StateType, HttpMethod, RsTransition, TransitionConfig, RsMapTransition } from 'jsax-rs';
+import { RsState, StateType, HttpMethod, RsTransition, TransitionConfig, RsMapTransition, HttpStatusCode } from 'jsax-rs';
 
 /**
  * The <code>TemplatesConfigurator</code> class is the <code>HeliosRouteConfigurator</code> implementation to declare 
@@ -52,6 +52,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
         this.getTemplate(router, context);
         this.createTemplate(router, context);
         this.updateTemplate(router, context);
+        this.deleteTemplate(router, context);
         this.routeAdded(HeliosRoute.TEMPLATES);
     }
 
@@ -63,7 +64,8 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
      */
     @RsState({
         resource: '/templates',
-        type: StateType.COLLECTION
+        type: StateType.COLLECTION,
+        method: HttpMethod.GET
     })
     private getTemplates(router: HeliosRouter, context: HeliosContext): void {
         const pathPattern: string = 'GET /templates';
@@ -93,7 +95,8 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
      */
     @RsState({
         resource: '/templates/:id',
-        type: StateType.COLLECTION
+        type: StateType.COLLECTION,
+        method: HttpMethod.GET
     })
     @RsMapTransition('getTemplatesTransition')
     private getTemplate(router: HeliosRouter, context: HeliosContext): void {
@@ -199,6 +202,51 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
                     } else {
                         res.sendStatus(HttpStatusCode.NOT_FOUND);
                     }
+                }
+            });
+        });
+    }
+    
+    /**
+     * Create the route for the <code>/templates/:id</code> resource path and the HTTP <code>DELETE</code> method.
+     * 
+     * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
+     * @param {HeliosContext} context the reference to the Helios server context.
+     */
+    @RsState({
+        resource: '/templates/:id',
+        type: StateType.COLLECTION,
+        method: HttpMethod.DELETE
+    })
+    @RsMapTransition('getTemplatesTransition')
+    private deleteTemplate(router: HeliosRouter, context: HeliosContext): void {
+        const pathPattern: string = 'DELETE /templates/';
+        const stateName: string = 'deleteTemplate';
+        router.getRouter().delete(HeliosRoute.TEMPLATES_ID, (req: Request, res: Response) => {
+            const id: string = req.params.id;
+            const templateRef: string = pathPattern + id;
+            HeliosRouterLogUtils.logRoute(req, templateRef);
+            const registry: TemplateRegistry = context.getSpiContext().getService(HeliosServiceName.TEMPLATE_REGISTRY);
+            registry.has(id, (err: AsteriaException, exists: boolean)=> {
+                if (err) {
+                    HttpErrorUtils.processError(
+                        req, res, templateRef, this.ERROR_MEDIATOR.resolveTemplatesError, err
+                    );
+                } else if (!exists) {
+                    res.sendStatus(HttpStatusCode.NOT_FOUND);
+                } else {
+                    registry.removeId(id, (err: AsteriaException)=> {
+                        if (err) {
+                            HttpErrorUtils.processError(
+                                req, res, templateRef, this.ERROR_MEDIATOR.resolveTemplatesError, err
+                            );
+                        } else {
+                            const result: HeliosData<HeliosTemplate> = HeliosDataBuilder.build<HeliosTemplate>(
+                                context.getId(), null, stateName, { id: id }
+                            );
+                            res.send(result);
+                        }
+                    });
                 }
             });
         });

@@ -7,7 +7,7 @@ import { HeliosRouter } from '../HeliosRouter';
 import { HeliosRoute } from '../HeliosRoute';
 import { HeliosRouterLogUtils } from '../../util/route/HeliosRouterLogUtils';
 import { AbstractHeliosRouteConfigurator } from './AbstractHeliosRouteConfigurator';
-import { HttpStatusCode, AsteriaException, StreamEventType, CommonChar } from 'asteria-gaia';
+import { AsteriaException, StreamEventType, CommonChar } from 'asteria-gaia';
 import { FileWalker } from '../../util/io/FileWalker';
 import { HeliosFileStats, HeliosData } from 'asteria-eos';
 import { SpiContext } from '../../spi/SpiContext';
@@ -25,7 +25,7 @@ import { WorkspaceErrorMediator } from '../error/WorkspaceErrorMediator';
 import { BusboyEventType } from '../../lang/enum/BusboyEventType';
 import { FileErrorCode } from '../../lang/enum/FileErrorCode';
 import { HttpErrorUtils } from '../../util/error/HttpErrorUtils';
-import { RsState, StateType, RsMapTransition, TransitionConfig, RsTransition } from 'jsax-rs';
+import { RsState, StateType, RsMapTransition, TransitionConfig, RsTransition, HttpStatusCode } from 'jsax-rs';
 
 /**
  * The <code>WorkspaceConfigurator</code> class is the <code>HeliosRouteConfigurator</code> implementation to declare 

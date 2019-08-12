@@ -1,6 +1,7 @@
 import { HeliosHttpError, HeliosHttpErrorCode } from 'asteria-eos';
-import { HttpStatusCode, AsteriaError } from 'asteria-gaia';
+import { AsteriaError } from 'asteria-gaia';
 import { HeliosHttpErrorBuilder } from '../../util/builder/HeliosHttpErrorBuilder';
+import { HttpStatusCode } from 'jsax-rs';
 
 /**
  * The <code>TemplateErrorMediator</code> allows to manage errors of <code>TemplateConfigurator</code> objects.

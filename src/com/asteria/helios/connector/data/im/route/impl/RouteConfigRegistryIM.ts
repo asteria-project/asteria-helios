@@ -42,6 +42,14 @@ export class RouteConfigRegistryIM extends AbstractAsteriaRegistryAsync<HeliosRo
         this.MAP.delete(config.getId());
         callback(null);
     }
+    
+    /**
+     * @inheritdoc
+     */
+    public removeId(id: string, callback: (err: AsteriaException)=> void): void {
+        this.MAP.delete(id);
+        callback(null);
+    }
 
     /**
      * @inheritdoc

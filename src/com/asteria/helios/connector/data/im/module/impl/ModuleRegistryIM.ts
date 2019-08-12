@@ -45,6 +45,14 @@ export class ModuleRegistryIM extends AbstractAsteriaRegistryAsync<HyperionModul
     /**
      * @inheritdoc
      */
+    public removeId(id: string, callback: (err: AsteriaException)=> void): void {
+        this._moduleRegistry.removeId(id);
+        callback(null);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public get(id: string, callback: (err: AsteriaException, module: HyperionModule)=> void): void {
         callback(null, this._moduleRegistry.get(id));
     }

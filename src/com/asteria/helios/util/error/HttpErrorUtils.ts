@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { HeliosHttpError } from 'asteria-eos';
-import { HttpStatusCode } from 'asteria-gaia';
 import { HeliosRouterLogUtils } from '../route/HeliosRouterLogUtils';
+import { HttpStatusCode } from 'jsax-rs';
 
 /**
  * A utility class for managing Helios HTTP errors.

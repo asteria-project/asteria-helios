@@ -1,7 +1,8 @@
 import { HeliosHttpError, HeliosHttpErrorCode } from 'asteria-eos';
-import { HttpStatusCode, AsteriaError } from 'asteria-gaia';
+import { AsteriaError } from 'asteria-gaia';
 import { HeliosHttpErrorBuilder } from '../../util/builder/HeliosHttpErrorBuilder';
 import { FileErrorCode } from '../../lang/enum/FileErrorCode';
+import { HttpStatusCode } from 'jsax-rs';
 
 /**
  * The <code>WorkspaceErrorMediator</code> allows to manage errors of <code>WorkspaceConfigurator</code> objects.

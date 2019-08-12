@@ -1,7 +1,8 @@
-import { Request, Response } from 'express';
+import { Request } from 'express';
 import { HeliosLogger } from '../logging/HeliosLogger';
-import { CommonChar, AsteriaContext, HttpStatusCode } from 'asteria-gaia';
+import { CommonChar, AsteriaContext } from 'asteria-gaia';
 import { Hyperion } from 'asteria-hyperion';
+import { HttpStatusCode } from 'jsax-rs';
 
 /**
  * The <code>HeliosRouterLogUtils</code> class provides static methods for logging Helios HTTP information.

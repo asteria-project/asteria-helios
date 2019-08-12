@@ -74,6 +74,19 @@ export class FileTemplateRegistry extends AbstractAsteriaRegistryAsync<HeliosTem
     /**
      * @inheritdoc
      */
+    public removeId(id: string, callback: (err: AsteriaException)=> void): void {
+        const result: HeliosTemplate = this.MAP.get(id);
+        if (result) {
+            this.MAP.delete(id);
+            this.writeData(callback);
+        } else {
+            callback(null);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
     public get(id: string, callback: (err: AsteriaException, template: HeliosTemplate)=> void): void {
         callback(null, this.MAP.get(id));
     }
