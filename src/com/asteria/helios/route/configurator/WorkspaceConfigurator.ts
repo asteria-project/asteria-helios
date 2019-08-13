@@ -25,7 +25,7 @@ import { WorkspaceErrorMediator } from '../error/WorkspaceErrorMediator';
 import { BusboyEventType } from '../../lang/enum/BusboyEventType';
 import { FileErrorCode } from '../../lang/enum/FileErrorCode';
 import { HttpErrorUtils } from '../../util/error/HttpErrorUtils';
-import { RsState, StateType, RsMapTransition, TransitionConfig, RsTransition, HttpStatusCode } from 'jsax-rs';
+import { RsState, StateType, RsMapTransition, TransitionConfig, RsTransition, HttpStatusCode, HttpMethod } from 'jsax-rs';
 
 /**
  * The <code>WorkspaceConfigurator</code> class is the <code>HeliosRouteConfigurator</code> implementation to declare 
@@ -38,7 +38,8 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      */
     @RsTransition({
         resource: '/workspace/controller/list',
-        type: StateType.CONTROLLER
+        type: StateType.CONTROLLER,
+        method: HttpMethod.POST
     })
     public readonly listFileTransition: TransitionConfig;
 
@@ -77,7 +78,8 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      */
     @RsState({
         resource: '/workspace/controller/list?:path',
-        type: StateType.CONTROLLER
+        type: StateType.CONTROLLER,
+        method: HttpMethod.POST
     })
     private listFiles(router: HeliosRouter, context: HeliosContext): void {
         const fileWalker: FileWalker = new FileWalker(context);
@@ -109,7 +111,8 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      */
     @RsState({
         resource: '/workspace/controller/upload?:path',
-        type: StateType.CONTROLLER
+        type: StateType.CONTROLLER,
+        method: HttpMethod.POST
     })
     @RsMapTransition('listFileTransition')
     private uploadFile(router: HeliosRouter, context: HeliosContext): void {
@@ -180,7 +183,8 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      */
     @RsState({
         resource: '/workspace/controller/remove?:path',
-        type: StateType.CONTROLLER
+        type: StateType.CONTROLLER,
+        method: HttpMethod.POST
     })
     @RsMapTransition('listFileTransition')
     private removeFileOrDir(router: HeliosRouter, context: HeliosContext): void {
@@ -209,7 +213,8 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      */
     @RsState({
         resource: '/workspace/controller/download',
-        type: StateType.CONTROLLER
+        type: StateType.CONTROLLER,
+        method: HttpMethod.POST
     })
     @RsMapTransition('listFileTransition')
     private downloadFile(router: HeliosRouter, context: HeliosContext): void {
@@ -246,7 +251,8 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      */
     @RsState({
         resource: '/workspace/controller/mkdir?:path',
-        type: StateType.CONTROLLER
+        type: StateType.CONTROLLER,
+        method: HttpMethod.POST
     })
     @RsMapTransition('listFileTransition')
     private makeDir(router: HeliosRouter, context: HeliosContext): void {
@@ -302,7 +308,8 @@ export class WorkspaceConfigurator extends AbstractHeliosRouteConfigurator imple
      */
     @RsState({
         resource: '/workspace/controller/rename?:oldPath&:newPath',
-        type: StateType.CONTROLLER
+        type: StateType.CONTROLLER,
+        method: HttpMethod.POST
     })
     @RsMapTransition('listFileTransition')
     private renameFileOrDir(router: HeliosRouter, context: HeliosContext): void {

@@ -14,7 +14,7 @@ import { HeaderUtils } from '../../util/net/HeaderUtils';
 import { TemplateErrorMediator } from '../error/TemplateErrorMediator';
 import { HttpErrorUtils } from '../../util/error/HttpErrorUtils';
 import { HeliosDataBuilder } from '../../util/builder/HeliosDataBuilder';
-import { RsState, StateType, HttpMethod, RsTransition, TransitionConfig, RsMapTransition, HttpStatusCode } from 'jsax-rs';
+import { RsState, StateType, HttpMethod, TransitionConfig, RsMapTransition, HttpStatusCode, RsTransitionFromState } from 'jsax-rs';
 
 /**
  * The <code>TemplatesConfigurator</code> class is the <code>HeliosRouteConfigurator</code> implementation to declare 
@@ -25,10 +25,7 @@ export class TemplatesConfigurator extends AbstractHeliosRouteConfigurator imple
     /**
      * Transition declaration of the "/workspace/controller/list" resource path.
      */
-    @RsTransition({
-        resource: '/templates',
-        type: StateType.COLLECTION
-    })
+    @RsTransitionFromState('getTemplates')
     public readonly getTemplatesTransition: TransitionConfig;
 
     /**

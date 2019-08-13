@@ -22,6 +22,9 @@ export class RuokConfigurator extends AbstractHeliosRouteConfigurator implements
         super('ruok');
     }
 
+    /**
+     * @inheritdoc
+     */
     public createRoute(router: HeliosRouter, context: HeliosContext): void {
         this.ruok(router, context);
         this.routeAdded(HeliosRoute.RUOK);

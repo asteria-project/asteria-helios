@@ -13,6 +13,7 @@ import { SpiContext } from '../../spi/SpiContext';
 import { HeliosTemplate } from 'asteria-eos';
 import { ModuleRegistry } from '../../service/config/ModuleRegistry';
 import { HeliosRouteUtils } from '../../util/route/HeliosRouteUtils';
+import { StateType, HttpMethod, RsState } from 'jsax-rs';
 
 /**
  * The <code>ProcessConfigurator</code> class is the <code>HeliosRouteConfigurator</code> implementation to work with 
@@ -40,6 +41,11 @@ export class ProcessConfigurator extends AbstractHeliosRouteConfigurator impleme
      * @param {HeliosRouter} router the reference to the internal router object of the the Helios server.
      * @param {HeliosContext} context the reference to the Helios server context.
      */
+    @RsState({
+        resource: '/process/controller',
+        type: StateType.COLLECTION,
+        method: HttpMethod.POST
+    })
     private createRunRoute(router: HeliosRouter, context: HeliosContext): void {
         const pathPattern: string = 'POST /process/controller/';
         router.getRouter().post(HeliosRoute.PROCESS_RUN, (req: Request, res: Response) => {
